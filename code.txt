@@ -1,0 +1,9 @@
+conda 26.3.2
+trimmomatic 0.40
+FastQC v0.12.1
+Bowtie2 2.5.5
+
+
+fastqc *fastq.gz
+
+trimmomatic PE -threads 2 -Xms1024m -Xmx4096m -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz R1_paired.fastq.gz R1_unpaired.fastq.gz R2_paired.fastq.gz R2_unpaired.fastq.gz SLIDINGWINDOW:4:20
