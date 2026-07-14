@@ -7,7 +7,7 @@ Bowtie2 2.5.5
 fastqc F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz
 
 # I was having issues with java memory when running trimmomatic and a higher number of threads and I asked chatgpt what the error meant and it said to add the Xms and Xmx flags which I don't know what they even do
-trimmomatic PE -threads 2 -Xms1024m -Xmx4096m -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz R1_paired.fastq.gz R1_unpaired.fastq.gz R2_paired.fastq.gz R2_unpaired.fastq.gz SLIDINGWINDOW:4:20
+ trimmomatic PE -threads 2 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz R1_paired.fastq.gz R1_unpaired.fastq.gz R2_paired.fastq.gz R2_unpaired.fastq.gz HEADCROP:20 
 
 fastqc R1_paired.fastq.gz  R2_paired.fastq.gz
 
