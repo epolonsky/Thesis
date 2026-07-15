@@ -5,13 +5,19 @@ Bowtie2 2.5.5
 samtools 1.10
 seqtk 1.5-r133
 blastn 2.17.0+ 
+gatk v4.6.2.0 (HTSJDK 4.2.0, Picard 3.4.0)
+
+# blast run in conda environment (blast_env)
+# gatk pileup run in conda environment (gatk_env)
 
 
+# quality check with fastqc of raw reads
 fastqc F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz
 
 # trim barcodes at irst 20 base pairs. Xms and Xmx flags used to increase java memory 
 trimmomatic PE -threads 2 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz R1_paired.fastq.gz R1_unpaired.fastq.gz R2_paired.fastq.gz R2_unpaired.fastq.gz HEADCROP:20 
 
+# quality check with fastqc of trimmed reads
 fastqc R1_paired.fastq.gz  R2_paired.fastq.gz
 
 # map trimmed reads to reference genome
@@ -23,6 +29,7 @@ samtools view -h -f 4 aligned.sam > unaligned.sam
 samtools fastq unaligned.sam > unaligned.fastq
 seqtk seq -a unaligned.fastq > unaligned.fasta
 
+# blast to see what the seuqences that were not aligned to the reference genome are
 blastn -db nt -query unaligned.fasta -out unaligned_blast.out
 
 # sam file to sorted and indexed bam file
