@@ -29,6 +29,9 @@ blastn -db nt -query unaligned.fasta -out unaligned_blast.out
 samtools view -bS aligned.sam | samtools sort - aligned_sorted.bam
 samtools index aligned_sorted.bam
 
+# Add read groups to the sorted BAM file
+gatk AddOrReplaceReadGroups -I aligned_sorted.bam -O aligned_sorted_RG.bam --RGID F7_PP_DNA_S15 --RGLB lib1 --RGPL ILLUMINA --RGPU S15 --RGSM F7_PP_DNA --CREATE_INDEX true
+
 # index the ref geome 
 samtools faidx GCA_963924435.1_idCulPipi1.1_genomic.fna
 
@@ -36,4 +39,4 @@ samtools faidx GCA_963924435.1_idCulPipi1.1_genomic.fna
 gatk CreateSequenceDictionary -R GCA_963924435.1_idCulPipi1.1_genomic.fna
 
 # run pileuo to see genome coverage
-gatk Pileup -R  GCA_963924435.1_idCulPipi1.1_genomic.fna -I aligned_sorted.bam  -O pileup_out.txt
+gatk Pileup -R  GCA_963924435.1_idCulPipi1.1_genomic.fna -I aligned_sorted_RG.bam -O pileup_out.txt
