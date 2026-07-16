@@ -45,5 +45,13 @@ samtools faidx GCA_963924435.1_idCulPipi1.1_genomic.fna
 # make seuqence dictionary of genome fasta
 gatk CreateSequenceDictionary -R GCA_963924435.1_idCulPipi1.1_genomic.fna
 
-# run pileuo to see genome coverage
+# run pileuo to see genome coverage (did not give me one number produced a large file??)
 gatk Pileup -R  GCA_963924435.1_idCulPipi1.1_genomic.fna -I aligned_sorted_RG.bam -O pileup_out.txt
+
+# get depth from samtools
+samtools depth aligned_sorted.bam > aligned_sorted_depth_out.txt
+
+# get average depth (coverage)
+awk '{sum+=$3} END {print "Average Depth: " sum/NR}' aligned_sorted_depth_out.txt > average_depth_output.txt
+
+
