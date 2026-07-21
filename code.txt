@@ -50,6 +50,9 @@ gatk Pileup -R  GCA_963924435.1_idCulPipi1.1_genomic.fna -I aligned_sorted_RG.ba
 # get depth from samtools
 samtools depth aligned_sorted.bam > aligned_sorted_depth_out.txt
 
+# calculate average depth (coverage)
+awk '{sum+=$3} END {print "Average Depth: " sum/NR}' aligned_sorted_depth_out.txt > average_depth_output.txt
+
 # get coverage from samtools (shows each gene and scaffold and how much of it is covered/depth)
 samtools coverage aligned_sorted.bam > aligned_sorted_coverage_output.txt
 
