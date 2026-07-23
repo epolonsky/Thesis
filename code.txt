@@ -7,15 +7,17 @@ seqtk 1.5-r133
 blastn 2.17.0+ 
 gatk v4.6.2.0 (HTSJDK 4.2.0, Picard 3.4.0)
 BUSCO 6.1.0
+blobtoolkit v4.4.5
 
 # blast run in conda environment (blast_env)
 # busco run in conda environment (busco)
 # gatk pileup run in conda environment (gatk_env)
+# blobtoolkit run in conda environment (btk)
 
 # quality check with fastqc of raw reads
 fastqc F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz
 
-# trim barcodes at irst 20 base pairs. Xms and Xmx flags used to increase java memory 
+# trim barcodes at first 20 base pairs. Xms and Xmx flags used to increase java memory 
 trimmomatic PE -threads 2 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz R1_paired.fastq.gz R1_unpaired.fastq.gz R2_paired.fastq.gz R2_unpaired.fastq.gz HEADCROP:20 
 
 # quality check with fastqc of trimmed reads
@@ -30,21 +32,26 @@ samtools view -h -f 4 aligned.sam > unaligned.sam
 samtools fastq unaligned.sam > unaligned.fastq
 seqtk seq -a unaligned.fastq > unaligned.fasta
 
-# blast to see what the seuqences that were not aligned to the reference genome are
+# blast to see what the sequences that were not aligned to the reference genome are
 blastn -db nt -query unaligned.fasta -out unaligned_blast.out
 
 # sam file to sorted and indexed bam file
-samtools view -bS aligned.sam | samtools sort - aligned_sorted.bam
+samtools view -bS aligned.sam | samtools sort -o aligned_sorted.bam
 samtools index aligned_sorted.bam
 
 # get coverage from samtools (shows each gene and scaffold and how much of it is covered/depth)
 samtools coverage aligned_sorted.bam > aligned_sorted_coverage_output.txt
 
 # get fasta assembly from bowtie 2 aligned file
-samtools consensus -f fasta aligned_sorted.bam  -o consensus.fasta 
+samtools consensus -f fasta aligned_sorted.bam -o consensus.fasta 
 
 # check assembly completeness with busco
 busco -i consensus.fasta -l diptera_odb10 -o busco_out -m genome --cpu 8
+
+# make snailplot of consensus fasta
+blobtools create --fasta ~data/consensus.fasta my_snail_dataset
+blobtools add --busco full_table.tsv my_snail_dataset
+blobtools view --view snail --plot --out ./ snail_plot
 
 
 
