@@ -40,8 +40,11 @@ samtools index aligned_sorted.bam
 # get coverage from samtools (shows each gene and scaffold and how much of it is covered/depth)
 samtools coverage aligned_sorted.bam > aligned_sorted_coverage_output.txt
 
-#get fasta assembly from bowtie 2 aligned file
+# get fasta assembly from bowtie 2 aligned file
 samtools consensus -f fasta aligned_sorted.bam  -o consensus.fasta 
+
+# check assembly completeness with busco
+busco -i consensus.fasta -l diptera_odb10 -o busco_out -m genome --cpu 8
 
 
 
