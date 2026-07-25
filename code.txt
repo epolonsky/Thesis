@@ -8,11 +8,17 @@ blastn 2.17.0+
 gatk v4.6.2.0 (HTSJDK 4.2.0, Picard 3.4.0)
 BUSCO 6.1.0
 blobtoolkit v4.4.5
+maker 3.01.04
+augustus 3.5.0
+RepeatMasker 4.2.3  
+RepeatModeler 2.0.8
+
 
 # blast run in conda environment (blast_env)
 # busco run in conda environment (busco)
 # gatk pileup run in conda environment (gatk_env)
 # blobtoolkit run in conda environment (btk)
+# maker run in conda environment (maker)
 
 # quality check with fastqc of raw reads
 fastqc F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz
@@ -53,6 +59,15 @@ blobtools create --fasta ~data/consensus.fasta my_snail_dataset
 blobtools add --busco full_table.tsv my_snail_dataset
 blobtools view --view snail --plot --out ./ snail_plot
 
+# maker for annotation (have to set some file paths in the config file and set the fasta file to be used)
+# installed GeneMark manually
+conda install -c bioconda repeatmodeler repeatmasker maker augustus snap busco
+# would not process small scaffolds from the fasta file so i removed ones smaller than 5000 bp
+seqkit seq -m 5000 ~/data/consensus.fasta > ~/data/consensus_min5000.fasta
+# get protein and rna files for pipiens pallens (do not exist for the pipiens pipiens assembly) 
+datasets download genome accession GCF_016801865.2 --include gff3,rna,protein
+# run maker
+maker -base consensus_min5000 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 
 
