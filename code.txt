@@ -66,6 +66,11 @@ conda install -c bioconda repeatmodeler repeatmasker maker augustus snap busco
 seqkit seq -m 5000 ~/data/consensus.fasta > ~/data/consensus_min5000.fasta
 # get protein and rna files for pipiens pallens (do not exist for the pipiens pipiens assembly) 
 datasets download genome accession GCF_016801865.2 --include gff3,rna,protein
+
+# run GeneMark-ES self-training on the consensus FASTA to generate a species-specific
+# gene prediction model for downstream MAKER genome annotation
+/home/elena/software/gmes_linux_64_4/gmes_petap.pl > --sequence consensus_min5000.fasta > --ES
+
 # run maker
 maker -base consensus_min5000 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
