@@ -12,6 +12,7 @@ maker 3.01.04
 augustus 3.5.0
 RepeatMasker 4.2.3  
 RepeatModeler 2.0.8
+BBTools 37.62
 
 
 # blast run in conda environment (blast_env)
