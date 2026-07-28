@@ -85,8 +85,8 @@ maker -base consensus_min5000 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 
 
-# kmer count with bbtools
-kmercountexact.sh in1=F7_PP_DNA_S15_R1_001.fastq.gz in2=F7_PP_DNA_S15_R2_001.fastq.gz out=kmers_21.txt k=21 threads=8 prealloc=t -Xmx20g > kmer.log 2>&1 &
+# kmer count with jellyfish (unzip the .gz fastq files before running jellyfish)
+jellyfish count -C -m 21 -s 500M -t 20 -o F7_k21.jf F7_PP_DNA_S15_R1_001.fastq F7_PP_DNA_S15_R1_002.fastq
 
 ## for pileup
 
