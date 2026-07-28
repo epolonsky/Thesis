@@ -88,6 +88,11 @@ maker -base consensus_min5000 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 # kmer count with jellyfish 
 jellyfish count -C -m 21 -s 500M -t 20 -o F7_k21.jf <(zcat F7_PP_DNA_S15_R1_001.fastq.gz) <(zcat F7_PP_DNA_S15_R2_001.fastq.gz) > jellyfish.log 2>&1 &
 
+# get histogram from jellyfish output
+jellyfish histo -t 20 F7_k21.jf > F7_k21.histo
+
+# use Genomescope 2 for genome survey 
+
 ## for pileup
 
 # Add read groups to the sorted BAM file
