@@ -85,8 +85,8 @@ maker -base consensus_min5000 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 
 
-# kmer count with jellyfish (unzip the .gz fastq files before running jellyfish)
-jellyfish count -C -m 21 -s 500M -t 20 -o F7_k21.jf F7_PP_DNA_S15_R1_001.fastq F7_PP_DNA_S15_R1_002.fastq
+# kmer count with jellyfish 
+jellyfish count -C -m 21 -s 500M -t 20 -o F7_k21.jf <(zcat F7_PP_DNA_S15_R1_001.fastq.gz) <(zcat F7_PP_DNA_S15_R2_001.fastq.gz) > jellyfish.log 2>&1 &
 
 ## for pileup
 
@@ -96,7 +96,7 @@ gatk AddOrReplaceReadGroups -I aligned_sorted.bam -O aligned_sorted_RG.bam --RGI
 # index the ref geome 
 samtools faidx GCA_963924435.1_idCulPipi1.1_genomic.fna
 
-# make seuqence dictionary of genome fasta
+# make sequence dictionary of genome fasta
 gatk CreateSequenceDictionary -R GCA_963924435.1_idCulPipi1.1_genomic.fna
 
 # run pileup to see genome coverage (did not give me one number produced a large file??)
