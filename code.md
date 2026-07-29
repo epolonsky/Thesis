@@ -227,7 +227,7 @@ RepeatModeler -database consensusDB -pa 16
 ```
 The resulting classified repeat library (consensi.fa.classified) was used as a custom repeat library for MAKER repeat masking.
 
-## 17. Configure MAKER for the initial annotation run (MAKER Pass 1)
+## 17. Configure MAKER for the initial annotation run 
 
 Before running MAKER, the `maker_opts.ctl` configuration file was edited to specify the input genome assembly, repeat library, homology evidence, and ab initio gene prediction parameters.
 
@@ -270,6 +270,10 @@ snaphmm=
 augustus_species=
 ```
 
+---
+
+## 18. MAKER Pass 1
+
 The first MAKER run was used to generate preliminary gene predictions that would subsequently be used for SNAP and AUGUSTUS training.
 
 ```bash
@@ -278,23 +282,23 @@ maker -base consensus_min5000 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ---
 
-## 18. Extract MAKER gene models for SNAP training
+## 19. Extract MAKER gene models for SNAP training
 
 ---
 
-## 19. Train SNAP
+## 20. Train SNAP
 
 ---
 
-## 20. Train AUGUSTUS
+## 21. Train AUGUSTUS
 
 ---
 
-## 21. MAKER Pass 2
+## 22. MAKER Pass 2
 
 ---
 
-## 22. MAKER Pass 3/final annotation
+## 23. MAKER Pass 3/final annotation
 
 ---
 
