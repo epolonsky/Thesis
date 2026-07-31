@@ -267,6 +267,13 @@ The species-specific GeneMark-ES HMM generated during GeneMark-ES training was p
 gmhmm=/home/elena/data/output/gmhmm.mod
 ```
 
+For the initial MAKER pass, direct gene prediction from transcript and protein alignments was disabled:
+
+```bash
+est2genome=0
+protein2genome=0
+```
+
 For the initial MAKER pass, SNAP and AUGUSTUS parameters were left blank because species-specific models had not yet been trained:
 
 ```bash
