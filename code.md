@@ -225,7 +225,11 @@ RepeatModeler was then run to identify and classify repetitive elements within t
 ```bash
 RepeatModeler -database consensusDB -pa 16
 ```
-The resulting classified repeat library (consensi.fa.classified) was used as a custom repeat library for MAKER repeat masking.
+The resulting RepeatModeler consensus repeat library was used as a custom repeat library for MAKER repeat masking:
+
+```bash
+rmlib=/home/elena/data/consensusDB-families.fa
+```
 
 ## 17. Configure MAKER for the initial annotation run 
 
@@ -240,7 +244,7 @@ genome=/home/elena/data/consensus_min5000.fasta
 The RepeatModeler-generated repeat library was provided for repeat masking:
 
 ```bash
-rm_lib=/home/elena/data/consensusDB-families/consensi.fa.classified
+rmlib=/home/elena/data/consensusDB-families.fa
 ```
 
 Protein and transcript evidence from the related species Culex pipiens pallens were provided as homology evidence. Because the RNA evidence originated from a related organism rather than the target genome, it was specified as alternate transcript evidence:
