@@ -313,6 +313,43 @@ maker -base consensus_min5000 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ---
 
+# Genome Survey Analysis
+
+##  K-mer counting using Jellyfish
+
+Genome characteristics were estimated from trimmed Illumina reads using a k-mer based approach.  
+21-mer frequencies were generated using Jellyfish with canonical k-mers (`-C`). The k-mer size was selected as **k=21**, which is commonly used for short-read genome size estimation.
+
+The hash size (`-s`) was set to **500M**.
+
+```bash
+jellyfish count -C -m 21 -s 500M -t 20 -o F7_k21_trimmed.jf <(zcat R1_paired.fastq.gz) <(zcat R2_paired.fastq.gz) > jellyfish.log 2>&1 
+```
+
+## Generate k-mer histogram
+
+The Jellyfish k-mer database was converted into a k-mer frequency histogram for downstream genome profiling.
+
+```bash
+jellyfish histo -t 20 F7_k21_trimmed.jf > F7_k21_trimmed.histo
+```
+
+## GenomeScope 2.0 genome survey analysis (online web version)
+
+GenomeScope 2.0 was used to estimate genome characteristics from the k-mer frequency distribution.
+
+The analysis was performed using a diploid model (`p=2`) with the following parameters:
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| k-mer size (`k`) | 21 | Length of k-mer used for genome profiling |
+| Ploidy (`p`) | 2 | Diploid genome model |
+| Maximum k-mer coverage (`m`) | 1,000,000 | Maximum coverage threshold included in model fitting |
+
+GenomeScope was run using the Jellyfish-generated histogram as input.
+
+---
+
 # GATK Pileup
 
 ## Add read groups
