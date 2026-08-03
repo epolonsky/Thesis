@@ -96,27 +96,47 @@ jellyfish histo -t 20 F7_k21_trimmed.jf > F7_k21_trimmed.histo
 
 # use Genomescope 2 for genome survey 
 
-## for pileup
-
-# Add read groups to the sorted BAM file
-gatk AddOrReplaceReadGroups -I aligned_sorted.bam -O aligned_sorted_RG.bam --RGID F7_PP_DNA_S15 --RGLB lib1 --RGPL ILLUMINA --RGPU S15 --RGSM F7_PP_DNA --CREATE_INDEX true
-
-# index the ref geome 
-samtools faidx GCA_963924435.1_idCulPipi1.1_genomic.fna
-
-# make sequence dictionary of genome fasta
-gatk CreateSequenceDictionary -R GCA_963924435.1_idCulPipi1.1_genomic.fna
-
-# run pileup to see genome coverage (did not give me one number produced a large file??)
-gatk Pileup -R  GCA_963924435.1_idCulPipi1.1_genomic.fna -I aligned_sorted_RG.bam -O pileup_out.txt
-
-
-
-
-
-
-
 
 # Liftoff for genome annotation transfer
 liftoff -g GCF_016801865.2_pallens_genomic.gff -o consensus_lifted_annotation.gff3 consensus.fasta GCF_016801865.2_pallens_genomic.fna
+
+
+
+
+---
+
+# GATK Pileup
+
+## Add read groups
+
+```bash
+gatk AddOrReplaceReadGroups -I aligned_sorted.bam -O aligned_sorted_RG.bam --RGID F7_PP_DNA_S15 --RGLB lib1 --RGPL ILLUMINA --RGPU S15 --RGSM F7_PP_DNA --CREATE_INDEX true
+```
+
+---
+
+## Index the reference genome
+
+```bash
+samtools faidx GCA_963924435.1_idCulPipi1.1_genomic.fna
+```
+
+---
+
+## Create the sequence dictionary
+
+```bash
+gatk CreateSequenceDictionary -R GCA_963924435.1_idCulPipi1.1_genomic.fna
+```
+
+---
+
+## Generate pileup
+
+Generate a pileup file describing the aligned reads at each genomic position.
+
+```bash
+gatk Pileup -R GCA_963924435.1_idCulPipi1.1_genomic.fna -I aligned_sorted_RG.bam -O pileup_out.txt
+```
+
 
