@@ -24,6 +24,7 @@ This file shows the computational workflow used to process sequencing data, gene
 | AUGUSTUS      | 3.5.0    |
 | RepeatMasker  | 4.2.3    |
 | RepeatModeler | 2.0.8    |
+| AGAT          | 1.7.0    |
 
 ---
 
