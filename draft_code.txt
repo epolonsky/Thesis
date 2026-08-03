@@ -68,6 +68,26 @@ maker -base consensus_min5000 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 
 
+# maker step 19 
+# combine maker results first
+cd consensus_min5000.maker.output
+gff3_merge -d consensus_min5000_master_datastore_index.log > consensus_min5000.all.gff3
+# extract gene models for snap
+maker2zff -x 0.25 -l 0.5 consensus_min5000.all.gff3
+
+# step 20 train snap
+fathom genome.ann genome.dna -categorize 1000
+fathom uni.ann uni.dna -export 1000 -plus
+forge export.ann export.dna
+hmm-assembler.pl . > snap_training.hmm
+
+# add snap back into maker
+snaphmm=/path/to/snap_training.hmm
+
+# maker run 2
+maker -base consensus_min5000_round2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
+
+
 # kmer count with jellyfish 
 jellyfish count -C -m 21 -s 500M -t 20 -o F7_k21_trimmed.jf <(zcat R1_paired.fastq.gz) <(zcat R2_paired.fastq.gz) > jellyfish.log 2>&1 &
 
