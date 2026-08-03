@@ -45,6 +45,8 @@ The workflow was performed using Conda-managed environments to maintain software
 | Seqtk | 1.5-r133 |
 | BLAST+ | 2.17.0 |
 | GATK | 4.6.2.0 |
+| Jellyfish | 2.2.10 |
+| Liftoff | 1.5.1 
 | BUSCO | 6.1.0 |
 | BlobToolKit | 4.4.5 |
 | MAKER | 3.01.04 |
