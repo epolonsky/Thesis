@@ -1,21 +1,3 @@
-conda 26.3.2
-trimmomatic 0.40
-FastQC v0.12.1
-Bowtie2 2.5.5
-samtools 1.19.2  
-seqtk 1.5-r133
-blastn 2.17.0+ 
-gatk v4.6.2.0 (HTSJDK 4.2.0, Picard 3.4.0)
-BUSCO 6.1.0
-blobtoolkit v4.4.5
-maker 3.01.04
-augustus 3.5.0
-RepeatMasker 4.2.3  
-RepeatModeler 2.0.8
-jellyfish 2.2.10
-mummer 3.23
-
-
 # blast run in conda environment (blast_env)
 # busco run in conda environment (busco)
 # gatk pileup run in conda environment (gatk_env)
@@ -107,4 +89,14 @@ gatk CreateSequenceDictionary -R GCA_963924435.1_idCulPipi1.1_genomic.fna
 
 # run pileup to see genome coverage (did not give me one number produced a large file??)
 gatk Pileup -R  GCA_963924435.1_idCulPipi1.1_genomic.fna -I aligned_sorted_RG.bam -O pileup_out.txt
+
+
+
+
+
+
+
+
+# Liftoff for genome annotation transfer
+liftoff -g GCF_016801865.2_pallens_genomic.gff -o consensus_lifted_annotation.gff3 consensus.fasta GCF_016801865.2_pallens_genomic.fna
 
