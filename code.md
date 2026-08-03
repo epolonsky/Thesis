@@ -352,6 +352,18 @@ GenomeScope was run using the Jellyfish-generated histogram as input.
 
 ---
 
+# Liftoff annotation transfer
+
+Liftoff is used to project existing annotations from the *Culex pipiens pallens* reference genome assembly onto the `consensus.fasta` genome assembly. The resulting GFF3 annotation file contains the transferred positions of genes and other genomic features mapped onto the consensus assembly.
+
+This annotation transfer provides a rapid source of genome features required for generating chromosome ideogram plots, which require chromosome coordinates and associated genomic annotations for visualization. Although the full *de novo* annotation workflow using MAKER is still in progress (as it has multiple passes), Liftoff provides a faster preliminary annotation set that can be used for generating an initial ideogram plot.
+
+```bash
+liftoff -g GCF_016801865.2_pallens_genomic.gff -o consensus_lifted_annotation.gff3 consensus.fasta GCF_016801865.2_pallens_genomic.fna
+```
+
+---
+
 # GATK Pileup
 
 ## Add read groups
