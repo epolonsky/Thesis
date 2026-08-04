@@ -101,6 +101,11 @@ jellyfish histo -t 20 F7_k21_trimmed.jf > F7_k21_trimmed.histo
 liftoff -g GCF_016801865.2_pallens_genomic.gff -o consensus_lifted_annotation.gff3 consensus.fasta GCF_016801865.2_pallens_genomic.fna
 
 
+# Get annotation stats with AGAT
+agat_sp_statistics.pl --gff consensus_lifted_annotation.gff3 -o liftoff_annotation_gff_statistics.txt
+
+# get protein fasta file using gffread
+gffread consensus_lifted_annotation.gff3 -g consensus.fasta -y consesnus_proteins.fasta
 
 
 ---
