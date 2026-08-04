@@ -364,3 +364,92 @@ liftoff -g GCF_016801865.2_pallens_genomic.gff -o consensus_lifted_annotation.gf
 ```
 
 ---
+
+# Annotation statistics
+
+## Generate annotation stats with AGAT
+
+Annotation statistics were generated from the Liftoff-generated GFF3 annotation using AGAT:
+
+```bash
+agat_sp_statistics.pl --gff consensus_lifted_annotation.gff3 -o liftoff_annotation_gff_statistics.txt
+```
+
+The AGAT output file contains statistics for each annotation feature type (mRNA, lncRNA, rRNA, tRNA, snRNA, snoRNA, and transcript). For protein-coding gene annotation statistics, values were taken from the following section:
+
+------------------------------------- mrna ---------------------------
+mrna have isoforms! Here are the statistics without isoforms shortest isoforms excluded)
+
+This section was used because it reports one representative transcript per gene.
+
+The following annotation statistics were obtained from the AGAT output:
+
+| Statistic | AGAT output field |
+|-----------|-------------------|
+| Number of protein-coding genes | `Number of gene` |
+| Number of exons per gene | `mean exons per mrna` |
+| Mean gene length (bp) | `mean gene length (bp)` |
+| Mean exon length (bp) | `mean exon length (bp)` |
+| Number of CDSs per gene | `mean cdss per mrna` |
+| Mean CDS length (bp) | `mean cds length (bp)` |
+| Number of introns per gene | `mean introns in cdss per mrna` |
+| Mean intron length (bp) | `mean intron in cds length (bp)` |
+| Total gene length (bp) | `Total gene length (bp)` |
+| Total exon length (bp) | `Total exon length (bp)` |
+| Total CDS length (bp) | `Total cds length (bp)` |
+| Total intron length (bp) | `Total intron length per cds (bp)` |
+
+## Generate predicted protein sequences
+
+Protein sequences were extracted from the Liftoff annotation using gffread:
+
+```bash
+gffread consensus_lifted_annotation.gff3 -g consensus.fasta -y consesnus_proteins.fasta
+```
+
+## Number of predicted protein sequences
+
+The number of predicted protein sequences was calculated by counting protein FASTA records:
+
+```bash
+grep -c "^>" proteins.fa
+```
+
+## Mean protein length (aa)
+
+Mean protein length was calculated from the extracted protein FASTA file:
+
+```bash
+seqkit fx2tab -nl consensus_proteins.fasta | \
+awk '{sum+=length($2); n++} END {print sum/n}'
+```
+
+## Genome size
+
+Genome assembly size was calculated from the genome FASTA:
+
+```bash
+seqkit stats consensus.fasta
+```
+
+The sum_len value was used as the total genome size.
+
+## Genome, exon, CDS, and intron rations
+
+Feature density ratios were calculated as:
+
+```bash
+feature length / genome assembly size × 100
+```
+
+using the following AGAT values:
+
+Gene ratio:
+Total gene length (Total gene length (bp)) / genome size
+Exon ratio:
+Total exon length (Total exon length (bp)) / genome size
+CDS ratio:
+Total CDS length (Total cds length (bp)) / genome size
+Intron ratio:
+Total intron length (Total intron length per cds (bp)) / genome size
+
