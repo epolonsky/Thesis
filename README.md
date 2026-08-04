@@ -35,24 +35,26 @@ Publication: https://doi.org/10.12688/wellcomeopenres.23767.1
 
 The workflow was performed using Conda-managed environments to maintain software compatibility and reproducibility.
 
-| Software | Version |
-|----------|---------|
-| Conda | 26.3.2 |
-| Trimmomatic | 0.40 |
-| FastQC | 0.12.1 |
-| Bowtie2 | 2.5.5 |
-| SAMtools | 1.19.2 |
-| Seqtk | 1.5-r133 |
-| BLAST+ | 2.17.0 |
-| GATK | 4.6.2.0 |
-| Jellyfish | 2.2.10 |
-| Liftoff | 1.5.1 
-| BUSCO | 6.1.0 |
-| BlobToolKit | 4.4.5 |
-| MAKER | 3.01.04 |
-| AUGUSTUS | 3.5.0 |
-| RepeatMasker | 4.2.3 |
-| RepeatModeler | 2.0.8 |
+| Software      | Version  |
+| ------------- | -------- |
+| Conda         | 26.3.2   |
+| Trimmomatic   | 0.40     |
+| FastQC        | 0.12.1   |
+| Bowtie2       | 2.5.5    |
+| SAMtools      | 1.19.2   |
+| Seqtk         | 1.5-r133 |
+| BLAST+        | 2.17.0   |
+| GATK          | 4.6.2.0  |
+| Jellyfish     | 2.2.10   |
+| Liftoff       | 1.5.1    |
+| BUSCO         | 6.1.0    |
+| BlobToolKit   | 4.4.5    |
+| MAKER         | 3.01.04  |
+| AUGUSTUS      | 3.5.0    |
+| RepeatMasker  | 4.2.3    |
+| RepeatModeler | 2.0.8    |
+| AGAT          | 1.7.0    |
+| seqkit        | 2.13.0   |
 
 ---
 
