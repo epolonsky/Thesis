@@ -25,6 +25,7 @@ This file shows the computational workflow used to process sequencing data, gene
 | RepeatMasker  | 4.2.3    |
 | RepeatModeler | 2.0.8    |
 | AGAT          | 1.7.0    |
+| seqkit        | 2.13.0   |
 
 ---
 
