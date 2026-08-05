@@ -297,23 +297,129 @@ maker -base consensus_min5000 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ---
 
-## 19. Extract MAKER gene models for SNAP training
+## 19. Merge MAKER Pass 1 outputs into one GFF file
+
+The first MAKER run stores annotation results across multiple files within the MAKER datastore. The gff3_merge utility combines these individual annotation files into a single GFF3 file containing all predicted genes, transcripts, exons, and CDS features.
+
+The merged GFF3 file generated from MAKER Pass 1 is used as the training dataset for training species-specific ab initio gene predictors, including SNAP and AUGUSTUS.
+
+```bash
+cd ~/data/consensus_min5000.maker.output
+gff3_merge -d consensus_min5000_master_datastore_index.log > consensus_min5000.all.gff
+```
+
+The resulting file contains the preliminary gene models generated during MAKER Pass 1
 
 ---
 
-## 20. Train SNAP
+## 20. Extract MAKER gene models for SNAP training
+
+The MAKER annotation output is converted into SNAP-compatible training files using maker2zff. This extracts high-quality gene models from the MAKER GFF3 file and converts them into the format required for SNAP training.
+
+```bash
+cd ~/data/consensus_min5000.maker.output
+maker2zff -n consensus_min5000.all.gff
+```
+
+This generates:
+
+genome.ann
+
+genome.dna
+
+where:
+
+* genome.ann contains gene structure annotations
+* genome.dna contains the corresponding genomic sequences
+
+The training set is then filtered and prepared using fathom to remove problematic models and generate a curated set of examples for SNAP.
+
+```bash
+fathom genome.ann genome.dna -categorize 1000
+fathom uni.ann uni.dna -export 1000 -plus
+```
+
+The exported training files are used to build a species-specific SNAP hidden Markov model.
 
 ---
 
-## 21. Train AUGUSTUS
+## 21. Train SNAP
+
+A separate directory was created to store SNAP training files:
+
+```bash
+cd ~/data/consensus_min5000.maker.output
+mkdir snap_training
+cd snap_training
+```
+The SNAP training parameters were generated using forge:
+
+```bash
+forge ../export.ann ../export.dna
+```
+
+The SNAP HMM was then assembled:
+
+```bash
+hmm-assembler.pl consensus_snap . > consensus_snap.hmm
+```
+
+The trained SNAP model was copied to the main analysis directory for use in MAKER Pass 2:
+
+```bash
+cp consensus_snap.hmm /home/elena/data/
+```
+---
+
+## 22. Train AUGUSTUS
+
+AUGUSTUS was trained using the preliminary MAKER gene predictions to generate a species-specific parameter set for ab initio gene prediction.
+
+The merged MAKER annotation file generated previously was used as the training dataset:
+
+```bash
+cd ~/data/consensus_min5000.maker.output
+```
+
+AUGUSTUS training was performed using autoAug.pl:
+
+```bash
+autoAug.pl --genome=/home/elena/data/consensus_min5000.fasta --species=culex_pipiens --trainingset=home/elena/data/consensus_min5000.maker.output/consensus_min5000.all.gff
+```
 
 ---
 
-## 22. MAKER Pass 2
+## 22.  Configure MAKER for the 2nd Pass
+
+Before running the 2nd pass of MAKER, the `maker_opts.ctl` configuration file was edited to incorporate the species-specific SNAP and AUGUSTUS models trained from the preliminary MAKER gene predictions. The previously generated GeneMark-ES model was retained to provide an additional source of ab initio gene predictions.
+
+Open the MAKER options file:
+
+Update the following parameters:
+
+```bash
+snaphmm=/home/elena/data/consensus_snap.hmm
+
+augustus_species=culex_pipiens
+
+keep_preds=1
+```
+
+The protein and transcript evidence from Culex pipiens pallens and the custom RepeatModeler repeat library were retained from the initial MAKER run.
 
 ---
 
-## 23. MAKER Pass 3/final annotation
+## 23 MAKER Pass 2
+
+The second MAKER run incorporated the trained GeneMark-ES, SNAP, and AUGUSTUS gene prediction models together with protein and transcript evidence to generate an improved set of genome annotations.
+
+```bash
+maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
+```
+
+---
+
+## 24. MAKER Pass 3/final annotation
 
 ---
 
