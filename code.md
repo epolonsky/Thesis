@@ -409,7 +409,7 @@ The protein and transcript evidence from Culex pipiens pallens and the custom Re
 
 ---
 
-## 23 MAKER Pass 2
+## 23. MAKER Pass 2
 
 The second MAKER run incorporated the trained GeneMark-ES, SNAP, and AUGUSTUS gene prediction models together with protein and transcript evidence to generate an improved set of genome annotations.
 
