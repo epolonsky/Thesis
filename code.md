@@ -418,7 +418,7 @@ maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ---
 
-## 24. Merge MAKER Pass 3 outputs into one GFF file
+## 24. Merge MAKER Pass 2 outputs into one GFF file
 
 ```bash
 
