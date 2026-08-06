@@ -299,7 +299,7 @@ maker -base consensus_min5000 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ## 19. Merge MAKER Pass 1 outputs into one GFF file
 
-The first MAKER run stores annotation results across multiple files within the MAKER datastore. The gff3_merge utility combines these individual annotation files into a single GFF3 file containing all predicted genes, transcripts, exons, and CDS features.
+MAKER stores annotation results across multiple files within the MAKER datastore. The gff3_merge utility combines these individual annotation files into a single GFF3 file containing all predicted genes, transcripts, exons, and CDS features.
 
 The merged GFF3 file generated from MAKER Pass 1 is used as the training dataset for training species-specific ab initio gene predictors, including SNAP and AUGUSTUS.
 
@@ -312,7 +312,7 @@ The resulting file contains the preliminary gene models generated during MAKER P
 
 ---
 
-## 20. Extract MAKER gene models for SNAP training
+## 20. Extract MAKER gene models for SNAP training from pass 1
 
 The MAKER annotation output is converted into SNAP-compatible training files using maker2zff. This extracts high-quality gene models from the MAKER GFF3 file and converts them into the format required for SNAP training.
 
@@ -343,7 +343,7 @@ The exported training files are used to build a species-specific SNAP hidden Mar
 
 ---
 
-## 21. Train SNAP
+## 21. Train SNAP with output from MAKER pass 1
 
 A separate directory was created to store SNAP training files:
 
@@ -371,20 +371,21 @@ cp consensus_snap.hmm /home/elena/data/
 ```
 ---
 
-## 22. Train AUGUSTUS
+## 22. Train AUGUSTUS with output from MAKER pass 1
 
 AUGUSTUS was trained using the preliminary MAKER gene predictions to generate a species-specific parameter set for ab initio gene prediction.
 
-The merged MAKER annotation file generated previously was used as the training dataset:
+The merged MAKER annotation file contains a fasta section and evidence tracks which need to be removed in order to train AUGUSTUS. 
 
 ```bash
 cd ~/data/consensus_min5000.maker.output
+awk '$2=="maker" && ($3=="gene" || $3=="mRNA" || $3=="exon" || $3=="CDS")' consensus_min5000.all.gff > consensus_min5000.training.gff
 ```
 
 AUGUSTUS training was performed using autoAug.pl:
 
 ```bash
-autoAug.pl --genome=/home/elena/data/consensus_min5000.fasta --species=culex_pipiens --trainingset=home/elena/data/consensus_min5000.maker.output/consensus_min5000.all.gff
+autoAug.pl --genome=/home/elena/data/consensus_min5000.fasta --species=culex_pipiens --trainingset=/home/elena/data/consensus_min5000.maker.output/consensus_min5000.training.gff > autoAug_new.log 2>&1 
 ```
 
 ---
@@ -392,8 +393,6 @@ autoAug.pl --genome=/home/elena/data/consensus_min5000.fasta --species=culex_pip
 ## 22.  Configure MAKER for the 2nd Pass
 
 Before running the 2nd pass of MAKER, the `maker_opts.ctl` configuration file was edited to incorporate the species-specific SNAP and AUGUSTUS models trained from the preliminary MAKER gene predictions. The previously generated GeneMark-ES model was retained to provide an additional source of ab initio gene predictions.
-
-Open the MAKER options file:
 
 Update the following parameters:
 
@@ -419,7 +418,43 @@ maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ---
 
-## 24. MAKER Pass 3/final annotation
+## 24. Merge MAKER Pass 3 outputs into one GFF file
+
+```bash
+
+```
+
+---
+
+## 25. Extract MAKER gene models for SNAP training from pass 2
+
+```bash
+
+```
+
+---
+
+## 26. Retrain SNAP with output from MAKER pass 2
+
+```bash
+
+```
+
+---
+
+## 27. Augustus SNAP with output from MAKER pass 2
+
+```bash
+
+```
+
+---
+
+## 28. MAKER Pass 3/final annotation
+
+```bash
+
+```
 
 ---
 
