@@ -388,6 +388,25 @@ AUGUSTUS training was performed using autoAug.pl:
 autoAug.pl --genome=/home/elena/data/consensus_min5000.fasta --species=culex_pipiens --trainingset=/home/elena/data/consensus_min5000.maker.output/consensus_min5000.training.gff > autoAug_new.log 2>&1 
 ```
 
+The command generated a genome-wide AUGUSTUS prediction job. Because the genome was divided into a single sequence subset, only one AUGUSTUS prediction script (aug1) was generated.
+
+The generated prediction script was located at:
+
+/home/elena/data/consensus_min5000.maker.output/autoAug/autoAugPred_abini
+
+AUGUSTUS was run using the newly trained culex_pipiens model: 
+
+```bash
+cd /home/elena/data/consensus_min5000.maker.output/autoAug/autoAugPred_abinitio/shells
+bash aug1 > aug1.log 2>&1
+```
+
+Once aug1 is finished autoAug is finished:
+
+```bash
+autoAug.pl --species=culex_pipiens --genome=/home/elena/data/consensus_min5000.maker.output/autoAug/seq/genome_clean.fa --useexisting --hints=/home/elena/data/consensus_min5000.maker.output/autoAug/hints/hints.E.gff -v -v --index=1
+```
+
 ---
 
 ## 22.  Configure MAKER for the 2nd Pass
