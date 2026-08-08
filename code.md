@@ -397,7 +397,7 @@ The generated prediction script was located at:
 AUGUSTUS was run using the newly trained culex_pipiens model: 
 
 ```bash
-cd /home/elena/data/consensus_min5000.maker.output/autoAug/autoAugPred_abinitio/shells
+cd ~/data/consensus_min5000.maker.output/autoAug/autoAugPred_abinitio/shells
 bash aug1 > aug1.log 2>&1
 ```
 
