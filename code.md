@@ -373,35 +373,33 @@ cp consensus_snap.hmm /home/elena/data/
 
 ## 22. Train AUGUSTUS with output from MAKER pass 1
 
-AUGUSTUS was trained using the preliminary MAKER gene predictions to generate a species-specific parameter set for ab initio gene prediction.
+AUGUSTUS was trained using the preliminary MAKER gene predictions from MAKER pass 1 to generate a species-specific parameter set for ab initio gene prediction.
 
-The merged MAKER annotation file contains a fasta section and evidence tracks which need to be removed in order to train AUGUSTUS. 
+The MAKER all.gff file contains multiple types of records, including evidence tracks and other annotation features. For AUGUSTUS training, a training GFF containing the MAKER gene models and their associated transcript, exon, and CDS features was extracted:
 
 ```bash
 cd ~/data/consensus_min5000.maker.output
 awk '$2=="maker" && ($3=="gene" || $3=="mRNA" || $3=="exon" || $3=="CDS")' consensus_min5000.all.gff > consensus_min5000.training.gff
 ```
 
-AUGUSTUS training was performed using autoAug.pl:
+AUGUSTUS was trained using autoAug.pl, using the genome assembly and the MAKER-derived training GFF:
 
 ```bash
 autoAug.pl --genome=/home/elena/data/consensus_min5000.fasta --species=culex_pipiens --trainingset=/home/elena/data/consensus_min5000.maker.output/consensus_min5000.training.gff > autoAug_new.log 2>&1 
 ```
 
-The command generated a genome-wide AUGUSTUS prediction job. Because the genome was divided into a single sequence subset, only one AUGUSTUS prediction script (aug1) was generated.
-
-The generated prediction script was located at:
+After training, AutoAug prepared a genome-wide AUGUSTUS prediction job. The genome was divided into one sequence subset, so only one prediction script, aug1, was generated:
 
 /home/elena/data/consensus_min5000.maker.output/autoAug/autoAugPred_abini
 
-AUGUSTUS was run using the newly trained culex_pipiens model: 
+The prediction was run from the AutoAug shell directory: 
 
 ```bash
 cd ~/data/consensus_min5000.maker.output/autoAug/autoAugPred_abinitio/shells
 bash aug1 > aug1.log 2>&1
 ```
 
-Once aug1 is finished autoAug is finished:
+After the aug1 AUGUSTUS prediction completed, AutoAug was resumed using the existing working directory:
 
 ```bash
 autoAug.pl --species=culex_pipiens --genome=/home/elena/data/consensus_min5000.maker.output/autoAug/seq/genome_clean.fa --useexisting --hints=/home/elena/data/consensus_min5000.maker.output/autoAug/hints/hints.E.gff -v -v --index=1
