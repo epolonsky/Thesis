@@ -459,7 +459,7 @@ maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ---
 
-## 27. Augustus SNAP with output from MAKER pass 2
+## 27. Retrtain Augustus with output from MAKER pass 2
 
 ```bash
 
