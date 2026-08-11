@@ -399,17 +399,11 @@ cd ~/data/consensus_min5000.maker.output/autoAug/autoAugPred_abinitio/shells
 bash aug1 > aug1.log 2>&1
 ```
 
-After the aug1 AUGUSTUS prediction completed, AutoAug was resumed using the existing working directory:
-
-```bash
-autoAug.pl --species=culex_pipiens --genome=/home/elena/data/consensus_min5000.maker.output/autoAug/seq/genome_clean.fa --useexisting --hints=/home/elena/data/consensus_min5000.maker.output/autoAug/hints/hints.E.gff -v -v --index=1
-```
-
 ---
 
-## 22.  Configure MAKER for the 2nd Pass
+## 23.  Configure MAKER for the 2nd Pass
 
-Before running the 2nd pass of MAKER, the `maker_opts.ctl` configuration file was edited to incorporate the species-specific SNAP and AUGUSTUS models trained from the preliminary MAKER gene predictions. The previously generated GeneMark-ES model was retained to provide an additional source of ab initio gene predictions.
+Before running the 2nd pass of MAKER, the `maker_opts.ctl` configuration file was edited to incorporate the species-specific SNAP and AUGUSTUS models trained from the preliminary MAKER gene predictions. The previously generated GeneMark-ES model was retained alongside these models as an additional source of ab initio gene predictions.
 
 Update the following parameters:
 
@@ -425,7 +419,7 @@ The protein and transcript evidence from Culex pipiens pallens and the custom Re
 
 ---
 
-## 23. MAKER Pass 2
+## 24. MAKER Pass 2
 
 The second MAKER run incorporated the trained GeneMark-ES, SNAP, and AUGUSTUS gene prediction models together with protein and transcript evidence to generate an improved set of genome annotations.
 
@@ -435,7 +429,7 @@ maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ---
 
-## 24. Merge MAKER Pass 2 outputs into one GFF file
+## 25. Merge MAKER Pass 2 outputs into one GFF file
 
 ```bash
 
@@ -443,7 +437,7 @@ maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ---
 
-## 25. Extract MAKER gene models for SNAP training from pass 2
+## 26. Extract MAKER gene models for SNAP training from pass 2
 
 ```bash
 
@@ -451,7 +445,7 @@ maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ---
 
-## 26. Retrain SNAP with output from MAKER pass 2
+## 27. Retrain SNAP with output from MAKER pass 2
 
 ```bash
 
@@ -459,7 +453,7 @@ maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ---
 
-## 27. Retrain Augustus with output from MAKER pass 2
+## 28. Retrain Augustus with output from MAKER pass 2
 
 ```bash
 
@@ -467,7 +461,7 @@ maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ---
 
-## 28. MAKER Pass 3/final annotation
+## 29. MAKER Pass 3/final annotation
 
 ```bash
 
