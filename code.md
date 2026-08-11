@@ -292,6 +292,7 @@ augustus_species=
 The first MAKER run was used to generate preliminary gene predictions that would subsequently be used for SNAP and AUGUSTUS training.
 
 ```bash
+cd ~/data
 maker -base consensus_min5000 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 ```
 
@@ -424,6 +425,7 @@ The protein and transcript evidence from Culex pipiens pallens and the custom Re
 The second MAKER run incorporated the trained GeneMark-ES, SNAP, and AUGUSTUS gene prediction models together with protein and transcript evidence to generate an improved set of genome annotations.
 
 ```bash
+cd ~/data
 maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 ```
 
