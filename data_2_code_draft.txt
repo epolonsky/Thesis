@@ -4,7 +4,8 @@ cd ~/data_2
 trimmomatic PE -threads 16 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz R1_trimmed_paired.fastq.gz R1_trimmed_unpaired.fastq.gz R2_trimmed_paired.fastq.gz R2_trimmed_unpaired.fastq.gz HEADCROP:20 CROP:124 SLIDINGWINDOW:4:20 MINLEN:50
 
 # quality check with fastqc of trimmed reads
-fastqc R1_trimmed_paired.fastq.gz  R2_trimmed_paired.fastq.gz
+mkdir fastqc_output
+fastqc -o fastqc_output R1_trimmed_paired.fastq.gz  R2_trimmed_paired.fastq.gz
 
 # map trimmed reads to reference genome
 bowtie2-build -f GCA_963924435.1_idCulPipi1.1_genomic.fna ref_genome_index
