@@ -149,3 +149,172 @@ gatk Pileup -R GCA_963924435.1_idCulPipi1.1_genomic.fna -I aligned_sorted_RG.bam
 ```
 
 
+
+
+
+
+
+
+
+
+
+
+# draft organization of my data directory
+~/data/
+│
+├── 00_raw_data/
+│   ├── F7_PP_DNA_S15_R1_001.fastq.gz
+│   └── F7_PP_DNA_S15_R2_001.fastq.gz
+│
+├── 01_read_qc/
+│   ├── raw/
+│   │   ├── F7_PP_DNA_S15_R1_001_fastqc/
+│   │   ├── F7_PP_DNA_S15_R1_001_fastqc.html
+│   │   ├── F7_PP_DNA_S15_R1_001_fastqc.zip
+│   │   ├── F7_PP_DNA_S15_R2_001_fastqc/
+│   │   ├── F7_PP_DNA_S15_R2_001_fastqc.html
+│   │   └── F7_PP_DNA_S15_R2_001_fastqc.zip
+│   │
+│   └── trimmed/
+│       ├── R1_paired.fastq.gz
+│       ├── R2_paired.fastq.gz
+│       ├── R1_unpaired.fastq.gz
+│       ├── R2_unpaired.fastq.gz
+│       ├── R1_paired_fastqc.html
+│       ├── R1_paired_fastqc.zip
+│       ├── R2_paired_fastqc.html
+│       └── R2_paired_fastqc.zip
+│
+├── 02_reference/
+│   ├── GCA_963924435.1_idCulPipi1.1_genomic.fna
+│   ├── GCA_963924435.1_idCulPipi1.1_genomic.fna.fai
+│   ├── GCA_963924435.1_idCulPipi1.1_genomic.dict
+│   └── bowtie2_index/
+│       ├── ref_genome_index.1.bt2
+│       ├── ref_genome_index.2.bt2
+│       ├── ref_genome_index.3.bt2
+│       ├── ref_genome_index.4.bt2
+│       ├── ref_genome_index.rev.1.bt2
+│       └── ref_genome_index.rev.2.bt2
+│
+├── 03_mapping/
+│   ├── aligned.sam
+│   ├── aligned_sorted.bam
+│   ├── aligned_sorted.bam.bai
+│   ├── aligned_sorted_RG.bam
+│   ├── aligned_sorted_RG.bai
+│   ├── aligned_sorted_coverage_output.txt
+│   ├── unmapped_reads_1.fastq
+│   ├── unmapped_reads_2.fastq
+│   └── bowtie2.log
+│
+├── 04_consensus/
+│   ├── consensus.fasta
+│   ├── consensus.fasta.fai
+│   └── consensus_min5000.fasta
+│
+├── 05_assembly_qc/
+│   ├── busco/
+│   │   └── busco_out/
+│   │
+│   └── blobtoolkit/
+│       ├── culex_pip_busco/
+│       └── ...
+│
+├── 06_genome_survey/
+│   ├── jellyfish/
+│   │   ├── F7_k21_trimmed.jf
+│   │   ├── F7_k21_trimmed.histo
+│   │   └── jellyfish.log
+│   │
+│   └── genomescope/
+│       └── ...
+│
+├── 07_annotation_evidence/
+│   ├── GCF_016801865.2_pallens_genomic.fna
+│   ├── GCF_016801865.2_pallens_genomic.fna.fai
+│   ├── GCF_016801865.2_pallens_genomic.gff
+│   ├── GCF_016801865.2_pallens_genomic.gff_db/
+│   ├── GCF_016801865.2_pallens_protein.faa
+│   └── GCF_016801865.2_pallens_rna.fna
+│
+├── 08_repeat_annotation/
+│   ├── consensusDB/
+│   │   ├── consensusDB.nhr
+│   │   ├── consensusDB.nin
+│   │   ├── consensusDB.nsq
+│   │   ├── consensusDB.nnd
+│   │   ├── consensusDB.nni
+│   │   ├── consensusDB.nog
+│   │   ├── consensusDB.njs
+│   │   └── consensusDB.translation
+│   │
+│   ├── consensusDB-families.fa
+│   ├── consensusDB-families.stk
+│   └── consensusDB-rmod.log
+│
+├── 09_genemark/
+│   ├── gmes.log
+│   ├── gmhmm.mod
+│   └── ...
+│
+├── 10_maker/
+│   │
+│   ├── pass1/
+│   │   ├── maker_opts.ctl
+│   │   ├── maker_bopts.ctl
+│   │   ├── maker_exe.ctl
+│   │   └── consensus_min5000.maker.output/
+│   │
+│   ├── snap_training/
+│   │   ├── genome.ann
+│   │   ├── genome.dna
+│   │   ├── uni.ann
+│   │   ├── uni.dna
+│   │   ├── export.ann
+│   │   ├── export.dna
+│   │   ├── consensus_snap.hmm
+│   │   └── ...
+│   │
+│   ├── augustus_training/
+│   │   ├── consensus_min5000.training.gff
+│   │   ├── autoAug_new.log
+│   │   └── autoAug/
+│   │
+│   ├── pass2/
+│   │   └── consensus_min5000_pass2.maker.output/
+│   │
+│   ├── pass3/
+│   │   └── ...
+│   │
+│   └── final/
+│       ├── final_annotation.gff3
+│       └── final_proteins.fasta
+│
+├── 11_liftoff/
+│   ├── consensus_lifted_annotation.gff3
+│   └── liftoff_annotation_gff_statistics.txt
+│
+├── 12_proteins/
+│   └── consensus_proteins.fasta
+│
+├── 13_results/
+│   ├── assembly/
+│   ├── annotation/
+│   ├── genome_survey/
+│   ├── qc/
+│   └── figures/
+│
+├── 99_logs/
+│   ├── trimmomatic.log
+│   ├── bowtie2.log
+│   ├── jellyfish.log
+│   ├── gmes.log
+│   ├── ...
+│   └── nohup.out
+│
+└── configs/
+    ├── maker_opts.ctl
+    ├── maker_bopts.ctl
+    └── maker_exe.ctl
+
