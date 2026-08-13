@@ -1,0 +1,4 @@
+cd ~/data_2
+
+# trimming with timmomatic
+  trimmomatic PE -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz R1_trimmed_paired.fastq R1_trimmed_unpaired.fastq R2_trimmed_paired.fastq R2_trimmed_unpaired.fastq HEADCROP:20 CROP:124 SLIDINGWINDOW:4:20 MINLEN:50
