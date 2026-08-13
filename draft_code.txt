@@ -94,6 +94,9 @@ jellyfish count -C -m 21 -s 500M -t 20 -o F7_k21_trimmed.jf <(zcat R1_paired.fas
 # get histogram from jellyfish output
 jellyfish histo -t 20 F7_k21_trimmed.jf > F7_k21_trimmed.histo
 
+# get filtered histogram from jellyfish output ignoring low count kmers (<10)
+jellyfish histo -L 10 F7_k21_trimmed.jf > F7_k21_trimmed_filtered.histo
+
 # use Genomescope 2 for genome survey 
 
 
