@@ -94,11 +94,9 @@ jellyfish count -C -m 21 -s 500M -t 20 -o F7_k21_trimmed.jf <(zcat R1_paired.fas
 # get histogram from jellyfish output
 jellyfish histo -t 20 F7_k21_trimmed.jf > F7_k21_trimmed.histo
 
-# filter histogram first 10
-nohup awk '$1 >= 10' F7_k21_trimmed.histo > F7_k21_10_trimmed_clean.histo
+# filter genomescope with lambda 28.9 and (only accepts whole integers)
+genomescope2 -i F7_k21_trimmed.histo -o genomescope_output -k 21 -p 2 -m 1000000 --start_shift 12 --typical_error 12
 
-# filter histogram first 15
-awk '$1 >= 15' F7_k21_trimmed.histo > F7_k21_15_trimmed_clean.histo
 
 # use Genomescope 2 for genome survey 
 
