@@ -116,7 +116,7 @@ samtools index bowtie2_output/aligned_sorted.bam
 ## 6. Calculate sequencing coverage
 
 ```bash
-samtools coverage bowtie2_output/aligned.sam > aligned_sam_coverage.txt
+samtools coverage bowtie2_output/aligned_sorted.bam > aligned_bam_coverage.txt
 ```
 
 ---
