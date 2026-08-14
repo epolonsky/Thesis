@@ -55,6 +55,7 @@ The workflow was performed using Conda-managed environments to maintain software
 | RepeatModeler | 2.0.8    |
 | AGAT          | 1.7.0    |
 | seqkit        | 2.13.0   |
+| genomescope   | 2.0      |
 
 ---
 
