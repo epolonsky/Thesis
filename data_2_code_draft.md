@@ -106,7 +106,8 @@ bowtie2 -x bowtie2_index/ref_genome_index -1 R1_trimmed_paired.fastq.gz -2 R2_tr
 ## 5. Convert aligned SAM files to sorted and indexed BAM
 
 ```bash
-samtools view -bS bowtie2_output/aligned.sam | samtools sort -o bowtie2_output/aligned_sorted.bam
+samtools view -bS bowtie2_output/aligned.sam
+samtools sort bowtie2_output/aligned.bam -o bowtie2_output/aligned_sorted.bam
 samtools index bowtie2_output/aligned_sorted.bam
 ```
 
@@ -116,6 +117,26 @@ samtools index bowtie2_output/aligned_sorted.bam
 
 ```bash
 samtools coverage bowtie2_output/aligned.sam > bowtie2_output/aligned_sam_coverage.txt
+```
+
+---
+
+## 7. Generate a reference-guided consensus genome 
+
+Generate a reference-guided consensus sequence from reads aligned to the reference genome.
+
+```bash
+samtools consensus -f fasta bowtie2_output/aligned_sorted.bam -o consensus.fasta
+```
+
+---
+
+## 8. Assess assembly completeness
+
+Evaluate genome completeness using BUSCO.
+
+```bash
+busco -i consensus.fasta -l diptera_odb10 -o busco_out -m genome 
 ```
 
 ---
