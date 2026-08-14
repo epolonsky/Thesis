@@ -15,7 +15,6 @@ This file shows the computational workflow used to process sequencing data, gene
 | SAMtools      | 1.19.2   |
 | Seqtk         | 1.5-r133 |
 | BLAST+        | 2.17.0   |
-| GATK          | 4.6.2.0  |
 | Jellyfish     | 2.2.10   |
 | Liftoff       | 1.5.1    |
 | BUSCO         | 6.1.0    |
@@ -64,7 +63,8 @@ Trim the first 20 bp from each read to remove barcode sequence.
 Java memory was increased using the `-Xms` and `-Xmx` options.
 
 ```bash
-trimmomatic PE -threads 2 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz R1_paired.fastq.gz R1_unpaired.fastq.gz R2_paired.fastq.gz R2_unpaired.fastq.gz HEADCROP:20
+mkdir trimmomatic_output
+trimmomatic PE -threads 2 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz trimmomatic_output/R1_paired.fastq.gz trimmomatic_output/R1_unpaired.fastq.gz trimmomatic_output/R2_paired.fastq.gz trimmomatic_output/R2_unpaired.fastq.gz HEADCROP:20
 ```
 
 ---
@@ -92,8 +92,8 @@ bowtie2-build -f GCA_963924435.1_idCulPipi1.1_genomic.fna bowtie2_index/ref_geno
 ```
 
 ```bash
-mkdir bowtie2_output
-bowtie2 -x bowtie2_index/ref_genome_index -1 R1_paired.fastq.gz -2 R2_paired.fastq.gz --un-conc bowtie2_output/unmapped_reads.fastq.gz -S bowtie2_output/aligned.sam -p 4 > bowtie2_output/bowtie2.log 2>&1
+mkdir -p bowtie2_output/unmapped_reads
+bowtie2 -x bowtie2_index/ref_genome_index -1 R1_paired.fastq.gz -2 R2_paired.fastq.gz --un-conc-gz bowtie2_output/unmapped_reads/unmapped_reads -S bowtie2_output/aligned.sam -p 4 > bowtie2_output/bowtie2.log 2>&1
 ```
 
 ---
@@ -496,7 +496,8 @@ Liftoff is used to project existing annotations from the *Culex pipiens pallens*
 This annotation transfer provides a rapid source of genome features required for generating chromosome ideogram plots, which require chromosome coordinates and associated genomic annotations for visualization. Although the full *de novo* annotation workflow using MAKER is still in progress (as it has multiple passes), Liftoff provides a faster preliminary annotation set that can be used for generating an initial ideogram plot.
 
 ```bash
-liftoff -g GCF_016801865.2_pallens_genomic.gff -o consensus_lifted_annotation.gff3 consensus.fasta GCF_016801865.2_pallens_genomic.fna
+mkdir liftoff
+liftoff -g GCF_016801865.2_pallens_genomic.gff -o liftoff/consensus_lifted_annotation.gff3 consensus.fasta GCF_016801865.2_pallens_genomic.fna
 ```
 
 ---
@@ -508,7 +509,7 @@ liftoff -g GCF_016801865.2_pallens_genomic.gff -o consensus_lifted_annotation.gf
 Annotation statistics were generated from the Liftoff-generated GFF3 annotation using AGAT:
 
 ```bash
-agat_sp_statistics.pl --gff consensus_lifted_annotation.gff3 -o liftoff_annotation_gff_statistics.txt
+agat_sp_statistics.pl --gff consensus_lifted_annotation.gff3 -o liftoff/liftoff_annotation_gff_statistics.txt
 ```
 
 The AGAT output file contains statistics for each annotation feature type (mRNA, lncRNA, rRNA, tRNA, snRNA, snoRNA, and transcript). For protein-coding gene annotation statistics, values were taken from the following section:
