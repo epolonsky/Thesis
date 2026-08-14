@@ -26,6 +26,7 @@ This file shows the computational workflow used to process sequencing data, gene
 | RepeatModeler | 2.0.8    |
 | AGAT          | 1.7.0    |
 | seqkit        | 2.13.0   |
+| genomescope   | 2.0      | 
 
 ---
 
@@ -50,7 +51,8 @@ These software packages were installed in separate Conda environments to maintai
 Assess raw Illumina read quality using FastQC.
 
 ```bash
-fastqc F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz
+mkdir fastqc_output
+fastqc -o fastqc_output F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz
 ```
 
 ---
@@ -70,7 +72,7 @@ trimmomatic PE -threads 2 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.g
 ## 3. Quality assessment after trimming
 
 ```bash
-fastqc R1_paired.fastq.gz R2_paired.fastq.gz
+fastqc -o fastqc_output R1_paired.fastq.gz R2_paired.fastq.gz
 ```
 
 ---
@@ -85,11 +87,13 @@ Accession: GCA_963924435.1
 Build a Bowtie2 index and align paired-end reads to the reference genome.
 
 ```bash
-bowtie2-build -f GCA_963924435.1_idCulPipi1.1_genomic.fna ref_genome_index
+mkdir bowtie2_index
+bowtie2-build -f GCA_963924435.1_idCulPipi1.1_genomic.fna bowtie2_index/ref_genome_index
 ```
 
 ```bash
-bowtie2 -x ref_genome_index -1 R1_paired.fastq.gz -2 R2_paired.fastq.gz --un-conc unmapped_reads.fastq.gz -S aligned.sam -p 4 > bowtie2.log 2>&1
+mkdir bowtie2_output
+bowtie2 -x bowtie2_index/ref_genome_index -1 R1_paired.fastq.gz -2 R2_paired.fastq.gz --un-conc bowtie2_output/unmapped_reads.fastq.gz -S bowtie2_output/aligned.sam -p 4 > bowtie2_output/bowtie2.log 2>&1
 ```
 
 ---
@@ -97,9 +101,9 @@ bowtie2 -x ref_genome_index -1 R1_paired.fastq.gz -2 R2_paired.fastq.gz --un-con
 ## 5. Convert aligned SAM files to sorted and indexed BAM
 
 ```bash
-samtools view -bS aligned.sam | samtools sort -o aligned_sorted.bam
+samtools view -bS bowtie2_output/aligned.sam | samtools sort -o bowtie2_output/aligned_sorted.bam
 
-samtools index aligned_sorted.bam
+samtools index bowtie2_output/aligned_sorted.bam
 ```
 
 ---
@@ -457,7 +461,8 @@ Genome characteristics were estimated from trimmed Illumina reads using a k-mer 
 The hash size (`-s`) was set to **500M**.
 
 ```bash
-jellyfish count -C -m 21 -s 500M -t 20 -o F7_k21_trimmed.jf <(zcat R1_paired.fastq.gz) <(zcat R2_paired.fastq.gz) > jellyfish.log 2>&1 
+mkdir jellyfish_output
+jellyfish count -C -m 21 -s 500M -t 20 -o jellyfish_output/F7_k21_trimmed.jf <(zcat R1_paired.fastq.gz) <(zcat R2_paired.fastq.gz) > jellyfish_output/jellyfish.log 2>&1 
 ```
 
 ## Generate k-mer histogram
@@ -465,7 +470,7 @@ jellyfish count -C -m 21 -s 500M -t 20 -o F7_k21_trimmed.jf <(zcat R1_paired.fas
 The Jellyfish k-mer database was converted into a k-mer frequency histogram for downstream genome profiling.
 
 ```bash
-jellyfish histo -t 20 F7_k21_trimmed.jf > F7_k21_trimmed.histo
+jellyfish histo -t 20 jellyfish_output/F7_k21_trimmed.jf > jellyfish_output/F7_k21_trimmed.histo
 ```
 
 ## GenomeScope 2.0 genome survey analysis (online web version)
