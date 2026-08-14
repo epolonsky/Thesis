@@ -1,3 +1,4 @@
+# done in the data_2 directory
 cd ~/data_2
 
 # trimming with trimmomatic
@@ -7,6 +8,17 @@ trimmomatic PE -threads 16 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.
 mkdir fastqc_output
 fastqc -o fastqc_output R1_trimmed_paired.fastq.gz  R2_trimmed_paired.fastq.gz
 
+# kmer counts using jellyfish
+mkdir jellyfish_output
+jellyfish count -C -m 21 -s 500M -t 20 -o jellyfish_output/F7_k21_trimmed.jf <(zcat R1_trimmed_paired.fastq.gz) <(zcat R2_trimmed_paired.fastq.gz) > jellyfish_output/jellyfish.log 2>&1 
+
+# kmer histogram
+jellyfish histo -t 20 jellyfish_output/F7_k21_trimmed.jf > jellyfish_output/F7_k21_trimmed.histo
+
+# make reference genome index for bowtie2
+mkdir bowtie2_index
+bowtie2-build -f GCA_963924435.1_idCulPipi1.1_genomic.fna bowtie2_index/ref_genome_index
+
 # map trimmed reads to reference genome
-bowtie2-build -f GCA_963924435.1_idCulPipi1.1_genomic.fna ref_genome_index
-bowtie2 -x ref_genome_index -1 R1_trimmed_paired.fastq.gz -2 R2_trimmed_paired.fastq.gz --un-conc-gz unmapped_reads.fastq.gz -S aligned.sam -p 4 > bowtie2.log 2>&1
+mkdir -p bowtie2_output/unmapped_reads
+bowtie2 -x bowtie2_index/ref_genome_index -1 R1_trimmed_paired.fastq.gz -2 R2_trimmed_paired.fastq.gz --un-conc-gz bowtie2_output/unmapped_reads/unmapped_reads.fastq.gz -S bowtie2_output/aligned.sam -p 4 > bowtie2_output/bowtie2.log 2>&1
