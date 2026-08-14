@@ -2,6 +2,7 @@
 cd ~/data_2
 
 # trimming with trimmomatic
+mkdir trimmomatic_output
 trimmomatic PE -threads 16 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz R1_trimmed_paired.fastq.gz R1_trimmed_unpaired.fastq.gz R2_trimmed_paired.fastq.gz R2_trimmed_unpaired.fastq.gz HEADCROP:20 CROP:124 SLIDINGWINDOW:4:20 MINLEN:50
 
 # quality check with fastqc of trimmed reads
@@ -15,10 +16,20 @@ jellyfish count -C -m 21 -s 500M -t 20 -o jellyfish_output/F7_k21_trimmed.jf <(z
 # kmer histogram
 jellyfish histo -t 20 jellyfish_output/F7_k21_trimmed.jf > jellyfish_output/F7_k21_trimmed.histo
 
+# genomescope 2 genome survey
+genomescope2 -i jellyfish_output/F7_k21_trimmed.histo -o genomescope_output -k 21 -p 2 -m 1000000
+
 # make reference genome index for bowtie2
 mkdir bowtie2_index
 bowtie2-build -f GCA_963924435.1_idCulPipi1.1_genomic.fna bowtie2_index/ref_genome_index
 
 # map trimmed reads to reference genome
 mkdir -p bowtie2_output/unmapped_reads
-bowtie2 -x bowtie2_index/ref_genome_index -1 R1_trimmed_paired.fastq.gz -2 R2_trimmed_paired.fastq.gz --un-conc-gz bowtie2_output/unmapped_reads/unmapped_reads.fastq.gz -S bowtie2_output/aligned.sam -p 4 > bowtie2_output/bowtie2.log 2>&1
+bowtie2 -x bowtie2_index/ref_genome_index -1 R1_trimmed_paired.fastq.gz -2 R2_trimmed_paired.fastq.gz --un-conc-gz bowtie2_output/unmapped_reads/unmapped_reads -S bowtie2_output/aligned.sam -p 4 > bowtie2_output/bowtie2.log 2>&1
+
+# sort and index the aligned.bam file
+samtools view -bS bowtie2_output/aligned.sam | samtools sort -o bowtie2_output/aligned_sorted.bam
+samtools index bowtie2_output/aligned_sorted.bam
+
+# calculate coverage using samtools coverage
+samtools coverage bowtie2_output/aligned.sam > bowtie2_output/aligned_sam_coverage.txt
