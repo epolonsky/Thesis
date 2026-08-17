@@ -413,37 +413,118 @@ maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ## 23. Merge MAKER Pass 2 outputs into one GFF file
 
-```bash
+The merged GFF3 file generated from MAKER Pass 2 is used as the retraining dataset for retraining species-specific ab initio gene predictors, including SNAP and AUGUSTUS.
 
+```bash
+cd ~/data/consensus_min5000_pass2.maker.output
+gff3_merge -d consensus_min5000_pass2_master_datastore_index.log > consensus_min5000_pass2.all.gff
 ```
+
+The resulting file contains the MAKER Pass 2 annotation models assembled from the individual datastore records.
 
 ---
 
 ## 24. Extract MAKER gene models for SNAP training from pass 2
 
-```bash
+The MAKER pass 2 annotation output is converted into SNAP-compatible training files using maker2zff. 
 
+```bash
+cd ~/data/consensus_min5000_pass2.maker.output
+maker2zff -n consensus_min5000_pass2.all.gff
 ```
+
+This generates:
+
+genome.ann
+
+genome.dna
+
+where:
+
+* genome.ann contains gene structure annotations
+* genome.dna contains the corresponding genomic sequences
+
+The training set is then again filtered and prepared using fathom to remove problematic models and generate a curated set of examples for SNAP.
+
+```bash
+fathom genome.ann genome.dna -categorize 1000
+fathom uni.ann uni.dna -export 1000 -plus
+```
+
+The exported training files are used to build a species-specific SNAP hidden Markov model.
 
 ---
 
 ## 25. Retrain SNAP with output from MAKER pass 2
 
-```bash
+A separate directory was created to store pass 2 SNAP training files:
 
+```bash
+cd ~/data/consensus_min5000_pass2.maker.output
+mkdir snap_training_pass2
+cd snap_training_pass2
+```
+The SNAP training parameters were generated using forge:
+
+```bash
+forge ../export.ann ../export.dna
+```
+
+The SNAP HMM was then assembled:
+
+```bash
+hmm-assembler.pl consensus_snap_pass2 . > consensus_snap_pass2.hmm
+```
+
+The retrained SNAP model was copied to the main analysis directory for use in MAKER Pass 3:
+
+```bash
+cp consensus_snap_pass2.hmm /home/elena/data/
 ```
 
 ---
 
 ## 26. Retrain Augustus with output from MAKER pass 2
 
+The merged MAKER Pass 2 all.gff file contains multiple types of records, including evidence tracks and other annotation features. For AUGUSTUS retraining, a training GFF containing the MAKER gene models and their associated transcript, exon, and CDS features was extracted:
+
+```bash
+cd ~/data/consensus_min5000_pass2.maker.output
+awk '$2=="maker" && ($3=="gene" || $3=="mRNA" || $3=="exon" || $3=="CDS")' consensus_min5000_pass2.all.gff > consensus_min5000_pass2.training.gff
+```
+
+AUGUSTUS was retrained using autoAug.pl, using the genome assembly and the MAKER-derived training GFF:
+
+```bash
+autoAug.pl --genome=/home/elena/data/consensus_min5000.fasta --species=culex_pipiens --trainingset=/home/elena/data/consensus_min5000_pass2.maker.output/consensus_min5000_pass2.training.gff > autoAug_new.log 2>&1 
+```
+
+After retraining, AutoAug prepared a genome-wide AUGUSTUS prediction job. The genome was divided into one sequence subset, so only one prediction script, aug1, was generated:
+
+/home/elena/data/consensus_min5000_pass2.maker.output/autoAug/autoAugPred_abini
+
+The prediction was run from the AutoAug shell directory: 
+
+```bash
+cd ~/data/consensus_min5000_pass2.maker.output/autoAug/autoAugPred_abinitio/shells
+bash aug1 > aug1.log 2>&1
+```
+
+---
+
+## 27.  Configure MAKER for the 3nd Pass
+
+Before running the 3nd pass of MAKER, the `maker_opts.ctl` configuration file was edited to incorporate the species-specific SNAP and AUGUSTUS models trained from the preliminary MAKER gene predictions. The previously generated GeneMark-ES model was retained alongside these models as an additional source of ab initio gene predictions.
+
+Update the following parameters:
+
 ```bash
 
 ```
 
 ---
 
-## 27. MAKER Pass 3/final annotation
+## 28. MAKER Pass 3/final annotation
 
 ```bash
 
