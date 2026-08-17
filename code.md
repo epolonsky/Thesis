@@ -111,7 +111,7 @@ samtools index bowtie2_output/aligned_sorted.bam
 ## 6. Calculate sequencing coverage
 
 ```bash
-samtools coverage aligned_sorted.bam > aligned_sorted_coverage_output.txt
+samtools coverage bowtie2_output/aligned_sorted.bam > aligned_sorted_coverage_output.txt
 ```
 
 ---
@@ -121,7 +121,7 @@ samtools coverage aligned_sorted.bam > aligned_sorted_coverage_output.txt
 Generate a reference-guided consensus sequence from reads aligned to the reference genome.
 
 ```bash
-samtools consensus -f fasta aligned_sorted.bam -o consensus.fasta
+samtools consensus -f fasta bowtie2_output/aligned_sorted.bam -o consensus.fasta
 ```
 
 ---
