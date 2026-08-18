@@ -622,7 +622,7 @@ The following annotation statistics were obtained from the AGAT output:
 Protein sequences were extracted from the Liftoff annotation using gffread:
 
 ```bash
-gffread consensus_lifted_annotation.gff3 -g consensus.fasta -y consesnus_proteins.fasta
+gffread consensus_lifted_annotation.gff3 -g consensus.fasta -y consensus_proteins.fasta
 ```
 
 ## Number of predicted protein sequences
