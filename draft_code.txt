@@ -109,7 +109,7 @@ liftoff -g GCF_016801865.2_pallens_genomic.gff -o consensus_lifted_annotation.gf
 agat_sp_statistics.pl --gff consensus_lifted_annotation.gff3 -o liftoff_annotation_gff_statistics.txt
 
 # get protein fasta file using gffread
-gffread consensus_lifted_annotation.gff3 -g consensus.fasta -y consesnus_proteins.fasta
+gffread consensus_lifted_annotation.gff3 -g consensus.fasta -y consensus_proteins.fasta
 
 
 ---
@@ -155,7 +155,8 @@ gatk Pileup -R GCA_963924435.1_idCulPipi1.1_genomic.fna -I aligned_sorted_RG.bam
 
 
 
-
+# rerun samtools consensus to see if the simple mode produces less Ns and compare to the original consensus command output
+samtools consensus -f fasta -m simple -d 1 -c 0.75 bowtie2_output/aligned_sorted.bam  -o consensus_simple.fasta
 
 
 
