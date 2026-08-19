@@ -4,6 +4,8 @@
 
 This repository contains the computational workflow used for my MS thesis project to process Illumina sequencing data, generate a reference-guided consensus genome assembly, evaluate assembly quality, and perform structural genome annotation using MAKER.
 
+The worklfow code can be found in the code.md markdown file.
+
 The workflow includes:
 
 1. Raw sequencing read quality assessment
