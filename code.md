@@ -426,11 +426,11 @@ The resulting file contains the MAKER Pass 2 annotation models assembled from th
 
 ## 24. Extract MAKER gene models for SNAP training from pass 2
 
-The MAKER pass 2 annotation output is converted into SNAP-compatible training files using maker2zff. 
+The MAKER pass 2 annotation output is converted into SNAP-compatible training files using maker2zff. The -n option was removed and the evidence-support thresholds (-c, -e, -o, -a, and -t) were set to zero, while the maximum allowed Annotation Edit Distance (AED) was set to 0.5 (-x 0.5). This allowed gene models with AED ≤0.5 to be retained for SNAP training without requiring direct EST or ab initio evidence overlap.
 
 ```bash
 cd ~/data/consensus_min5000_pass2.maker.output
-maker2zff -n consensus_min5000_pass2.all.gff
+maker2zff -c 0 -e 0 -o 0 -a 0 -t 0 -x 0.5 consensus_min5000_pass2.all.gff
 ```
 
 This generates:
