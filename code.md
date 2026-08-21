@@ -1,6 +1,6 @@
 # Bioinformatics Workflow
 
-This file shows the computational workflow used to process sequencing data, generate a consensus genome assembly, assess assembly quality, and annotate the genome using MAKER.
+This file shows the computational workflow used to process illumina short read sequencing data, generate a consensus genome assembly, assess assembly quality, and annotate the genome using MAKER.
 
 ---
 
@@ -58,7 +58,7 @@ fastqc -o fastqc_output F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq
 
 ## 2. Trim sequencing reads
 
-Trim the first 20 bp from each read to remove barcode sequence.
+Trim the first 20 bp from each read to remove the barcode sequence.
 
 Java memory was increased using the `-Xms` and `-Xmx` options.
 
@@ -386,7 +386,7 @@ bash aug1 > aug1.log 2>&1
 
 Before running the 2nd pass of MAKER, the `maker_opts.ctl` configuration file was edited to incorporate the species-specific SNAP and AUGUSTUS models trained from the preliminary MAKER gene predictions. The previously generated GeneMark-ES model was retained alongside these models as an additional source of ab initio gene predictions.
 
-Update the following parameters:
+The following parameters were updated:
 
 ```bash
 snaphmm=/home/elena/data/consensus_snap.hmm
@@ -413,7 +413,7 @@ maker -base consensus_min5000_pass2 maker_opts.ctl maker_bopts.ctl maker_exe.ctl
 
 ## 23. Merge MAKER Pass 2 outputs into one GFF file
 
-The merged GFF3 file generated from MAKER Pass 2 is used as the retraining dataset for retraining species-specific ab initio gene predictors, including SNAP and AUGUSTUS.
+The merged GFF3 file generated from MAKER Pass 2 is used as the retraining dataset for retraining SNAP and AUGUSTUS.
 
 ```bash
 cd ~/data/consensus_min5000_pass2.maker.output
