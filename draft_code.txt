@@ -1,3 +1,28 @@
+# 1. Generate genotype likelihoods and call variants (SNPs/Indels)
+bcftools mpileup -Ou -f reference.fasta mapped_sorted.bam | \
+bcftools call -mv -Oz -o pooled_variants.vcf.gz
+
+# 2. Index the resulting VCF file
+bcftools index pooled_variants.vcf.gz
+
+# 3. Create the consensus sequence (injecting mutations into the reference)
+bcftools consensus -f reference.fasta pooled_variants.vcf.gz -o consensus_fixed.fasta
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # blast run in conda environment (blast_env)
 # busco run in conda environment (busco)
 # gatk pileup run in conda environment (gatk_env)
