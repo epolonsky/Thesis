@@ -6,6 +6,10 @@ samtools consensus -m simple --min-depth 1 --call-fract 0.5 --ambig bowtie2_outp
 
 liftoff -g pallens/GCF_016801865.2_pallens_genomic.gff -o liftoff_simple_ambig/consensus_simple_ambig_lifted_annotation.gff3 consensus_simple_ambig.fasta pallens/GCF_016801865.2_pallens_genomic.fna
 
+busco -i consensus_simple.fasta -l diptera_odb10 -o busco_simple_out -m genome --cpu 8
+
+busco -i consensus_simple_ambig.fasta -l diptera_odb10 -o busco_simple_ambig_out -m genome --cpu 8
+
 
 # blast run in conda environment (blast_env)
 # busco run in conda environment (busco)
