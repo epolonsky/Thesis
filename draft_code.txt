@@ -1,26 +1,10 @@
-# 1. Generate genotype likelihoods and call variants (SNPs/Indels)
-bcftools mpileup -Ou -f reference.fasta mapped_sorted.bam | \
-bcftools call -mv -Oz -o pooled_variants.vcf.gz
+samtools consensus -m simple --min-depth 1 --call-fract 0.5 bowtie2_output/aligned_sorted.bam > consensus_simple.fasta
 
-# 2. Index the resulting VCF file
-bcftools index pooled_variants.vcf.gz
+liftoff -g pallens/GCF_016801865.2_pallens_genomic.gff -o liftoff_simple/consensus_simple_lifted_annotation.gff3 consensus_simple.fasta pallens/GCF_016801865.2_pallens_genomic.fna
 
-# 3. Create the consensus sequence (injecting mutations into the reference)
-bcftools consensus -f reference.fasta pooled_variants.vcf.gz -o consensus_fixed.fasta
+samtools consensus -m simple --min-depth 1 --call-fract 0.5 --ambig bowtie2_output/aligned_sorted.bam > consensus_simple_ambig.fasta
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+liftoff -g pallens/GCF_016801865.2_pallens_genomic.gff -o liftoff_simple_ambig/consensus_simple_ambig_lifted_annotation.gff3 consensus_simple_ambig.fasta pallens/GCF_016801865.2_pallens_genomic.fna
 
 
 # blast run in conda environment (blast_env)
@@ -127,7 +111,7 @@ genomescope2 -i F7_k21_trimmed.histo -o genomescope_output -k 21 -p 2 -m 1000000
 
 
 # Liftoff for genome annotation transfer
-liftoff -g GCF_016801865.2_pallens_genomic.gff -o consensus_lifted_annotation.gff3 consensus.fasta GCF_016801865.2_pallens_genomic.fna
+liftoff -g pallens/GCF_016801865.2_pallens_genomic.gff -o consensus_lifted_annotation.gff3 consensus.fasta pallens/GCF_016801865.2_pallens_genomic.fna
 
 
 # Get annotation stats with AGAT
@@ -343,54 +327,3 @@ samtools consensus -f fasta -m simple -d 1 -c 0.75 bowtie2_output/aligned_sorted
     ├── maker_opts.ctl
     ├── maker_bopts.ctl
     └── maker_exe.ctl
-
-
-
-
-
-
-
-
-
-
-
-
-# done in the data_2 directory
-cd ~/data_2
-
-# trimming with trimmomatic
-mkdir trimmomatic_output
-trimmomatic PE -threads 16 -Xms1024m -Xmx8g -phred33 ~/data/F7_PP_DNA_S15_R1_001.fastq.gz ~/data/F7_PP_DNA_S15_R2_001.fastq.gz trimmomatic_output/R1_trimmed_paired.fastq.gz trimmomatic_output/R1_trimmed_unpaired.fastq.gz trimmomatic_output/R2_trimmed_paired.fastq.gz trimmomatic_output/R2_trimmed_unpaired.fastq.gz HEADCROP:20 CROP:124 SLIDINGWINDOW:4:20 MINLEN:50
-
-# quality check with fastqc of trimmed reads
-mkdir fastqc_output
-fastqc -o fastqc_output trimmomatic_output/R1_trimmed_paired.fastq.gz  trimmomatic_output/R2_trimmed_paired.fastq.gz
-
-# kmer counts using jellyfish
-mkdir jellyfish_output
-jellyfish count -C -m 21 -s 500M -t 20 -o jellyfish_output/F7_k21_trimmed.jf <(zcat trimmomatic_output/R1_trimmed_paired.fastq.gz) <(zcat trimmomatic_output/R2_trimmed_paired.fastq.gz) > jellyfish_output/jellyfish.log 2>&1 
-
-# kmer histogram
-jellyfish histo -t 20 jellyfish_output/F7_k21_trimmed.jf > jellyfish_output/F7_k21_trimmed.histo
-
-# genomescope 2 genome survey
-mkdir genomescope_output
-genomescope2 -i jellyfish_output/F7_k21_trimmed.histo -o genomescope_output -k 21 -p 2 -m 1000000
-
-# make reference genome index for bowtie2
-mkdir bowtie2_index
-bowtie2-build -f ~/data/GCA_963924435.1_idCulPipi1.1_genomic.fna bowtie2_index/ref_genome_index
-
-# map trimmed reads to reference genome
-mkdir -p bowtie2_output/unmapped_reads
-bowtie2 -x bowtie2_index/ref_genome_index -1 trimmomatic_output/R1_trimmed_paired.fastq.gz -2 trimmomatic_output/R2_trimmed_paired.fastq.gz --un-conc-gz bowtie2_output/unmapped_reads/unmapped_reads -S bowtie2_output/aligned.sam -p 4 > bowtie2_output/bowtie2.log 2>&1
-
-# sort and index the aligned.bam file
-samtools view -bS bowtie2_output/aligned.sam
-samtools sort bowtie2_output/aligned.bam -o bowtie2_output/aligned_sorted.bam
-samtools index bowtie2_output/aligned_sorted.bam
-
-# calculate coverage using samtools coverage
-samtools coverage bowtie2_output/aligned_sorted.bam > aligned_bam_coverage.txt
-
-
