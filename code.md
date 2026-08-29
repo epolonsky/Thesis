@@ -92,8 +92,8 @@ bowtie2-build -f GCA_963924435.1_idCulPipi1.1_genomic.fna bowtie2_index/ref_geno
 ```
 
 ```bash
-mkdir -p bowtie2_output/unmapped_reads
-bowtie2 -x bowtie2_index/ref_genome_index -1 F7_PP_DNA_S15_R1_001.fastq.gz -2 F7_PP_DNA_S15_R2_001.fastq.gz --un-gz bowtie2_output/unmapped_reads -S bowtie2_output/aligned.sam -p 4 > bowtie2_output/bowtie2.log 2>&1
+mkdir -p bowtie2_output
+bowtie2 -x bowtie2_index/ref_genome_index -1 F7_PP_DNA_S15_R1_001.fastq.gz -2 F7_PP_DNA_S15_R2_001.fastq.gz --un-conc-gz bowtie2_output/unmapped_reads -S bowtie2_output/aligned.sam -p 4 > bowtie2_output/bowtie2.log 2>&1
 ```
 
 ---
