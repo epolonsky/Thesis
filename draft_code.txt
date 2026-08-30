@@ -7,6 +7,14 @@ samtools index bowtie2_output_sensitive/aligned_sorted.bam
 
 samtools coverage bowtie2_output_sensitive/aligned_sorted.bam > aligned_sorted_sensitive_coverage_output.txt
 
+zcat bowtie2_output/unmapped_reads.1.gz | seqtk seq -A > bowtie2_output/unmapped_R1.fasta
+zcat bowtie2_output/unmapped_reads.2.gz | seqtk seq -A > bowtie2_output/unmapped_R2.fasta
+
+mkdir unmapped_blast_output
+blastn -query bowtie2_output/unmapped_R1.fasta -db nt -remote -out unmapped_blast_output/pair1_blast.tsv -outfmt "6 qseqid saccver stitle pident length qlen qcovs evalue bitscore"
+
+blastn -query bowtie2_output/unmapped_R2.fasta -db nt -remote -out unmapped_blast_output/pair2_blast.tsv -outfmt "6 qseqid saccver stitle pident length qlen qcovs evalue bitscore"
+
 
 samtools consensus -m simple --min-depth 1 --call-fract 0.5 bowtie2_output/aligned_sorted.bam > consensus_simple.fasta
 
