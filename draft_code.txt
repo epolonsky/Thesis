@@ -1,5 +1,5 @@
 
-bowtie2 --sensitive -x bowtie2_index/ref_genome_index -1 trimmomatic_output/R1_paired.fastq.gz -2 trimmomatic_output/R2_paired.fastq.gz --un-conc-gz bowtie2_output_sensitive/unmapped_reads -S bowtie2_output_sensitive/aligned.sam -p 4 > bowtie2_output_sensitive/bowtie2.log 2>&1
+bowtie2 --very-sensitive -x bowtie2_index/ref_genome_index -1 trimmomatic_output/R1_paired.fastq.gz -2 trimmomatic_output/R2_paired.fastq.gz --un-conc-gz bowtie2_output_sensitive/unmapped_reads -S bowtie2_output_sensitive/aligned.sam -p 4 > bowtie2_output_sensitive/bowtie2.log 2>&1
 
 
 samtools consensus -m simple --min-depth 1 --call-fract 0.5 bowtie2_output/aligned_sorted.bam > consensus_simple.fasta
