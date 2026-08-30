@@ -101,8 +101,8 @@ bowtie2 -x bowtie2_index/ref_genome_index -1 trimmomatic_output/R1_paired.fastq.
 ## 5. Convert aligned SAM files to sorted and indexed BAM
 
 ```bash
-samtools view -bS bowtie2_output/aligned.sam | samtools sort -o bowtie2_output/aligned_sorted.bam
-
+samtools view -bS bowtie2_output/aligned.sam -o aligned.bam
+samtools sort -o bowtie2_output/aligned_sorted.bam
 samtools index bowtie2_output/aligned_sorted.bam
 ```
 
