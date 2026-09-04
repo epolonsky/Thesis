@@ -21,3 +21,63 @@ samtools consensus -m simple --min-depth 1 --call-fract 0.5 bowtie2_output/align
 liftoff -g pallens/GCF_016801865.2_pallens_genomic.gff -o liftoff_simple/consensus_simple_lifted_annotation.gff3 consensus_simple.fasta pallens/GCF_016801865.2_pallens_genomic.fna
 
 busco -i consensus_simple.fasta -l diptera_odb10 -o busco_simple_out -m genome --cpu 8
+
+# extract genes
+grep 'ID=gene-LOCgeneid consensus_simple_lifted_annotation.gff3
+
+#
+mkdir pallens_ins_res_genes
+mkdir quinx_ins_res_genes
+mkdir pipiens_ins_res_genes
+
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna
+samtools faidx genome.fa chr1:#-# > output.fasta
+
+# extract pipiens genes
+samtools faidx consensus_simple.fasta OZ004313.1:67389111-67610679 > pipiens_ins_res_genes/pipiens_ace1.fasta # has Ns
+samtools faidx consensus_simple.fasta OZ004312.1:191387886-191579832 > pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel_sub_a.fasta # has Ns
+samtools faidx consensus_simple.fasta OZ004311.1:57427960-57431359 > pipiens_ins_res_genes/pipiens_CYP9AL1.fasta 
+samtools faidx consensus_simple.fasta OZ004312.1:171898089-171899759 > pipiens_ins_res_genes/pipiens_CYP9J45.fasta 
+samtools faidx consensus_simple.fasta OZ004312.1:171886230-171888121 > pipiens_ins_res_genes/pipiens_CYP9J35.fasta 
+samtools faidx consensus_simple.fasta OZ004311.1:18328203-18376214 > pipiens_ins_res_genes/pipiens_CYP94C52v1.fasta # has Ns
+samtools faidx consensus_simple.fasta OZ004313.1:56646492-56655932 > pipiens_ins_res_genes/pipiens_CYP4D42v1.fasta # has Ns
+samtools faidx consensus_simple.fasta OZ004311.1:109318546-109330411 > pipiens_ins_res_genes/pipiens_CYP6BZ2.fasta # has few Ns
+samtools faidx consensus_simple.fasta OZ004311.1:109320432-109322117 > pipiens_ins_res_genes/pipiens_CYP6P14.fasta 
+samtools faidx consensus_simple.fasta OZ004313.1:32667331-32669251 > pipiens_ins_res_genes/pipiens_CYP325Y6.fasta 
+samtools faidx consensus_simple.fasta OZ004312.1:171871205-171900281 > pipiens_ins_res_genes/pipiens_CYP9J40.fasta # has Ns
+samtools faidx consensus_simple.fasta OZ004312.1:13606276-13608145 > pipiens_ins_res_genes/pipiens_CYP9M10.fasta 
+samtools faidx consensus_simple.fasta OZ004313.1:50915489-50917257 > pipiens_ins_res_genes/pipiens_CYP4H34.fasta 
+
+# extract pallens genes
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068939.1:114983323-115199984 > pallens_ins_res_genes/pallens_ace1.fasta 
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068938.1:200484423-200714845 > pallens_ins_res_genes/pallens_voltage_gated_sodium_channel_sub_a.fasta  
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068937.1:57999218-58006536 > pallens_ins_res_genes/pallens_CYP9AL1.fasta  
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068938.1:179433238-179434991 > pallens_ins_res_genes/pallens_CYP9J45.fasta 
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068938.1:179425374-179427248 > pallens_ins_res_genes/pallens_CYP9J35.fasta 
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068937.1:18495721-18551283 > pallens_ins_res_genes/pallens_CYP94C52v1.fasta 
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068937.1:83254668-83272935 > pallens_ins_res_genes/pallens_CYP4D42v1.fasta 
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NW_026292997.1:10334-20703 > pallens_ins_res_genes/pallens_CYP6BZ2.fasta 
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NW_026292997.1:14097-15782 > pallens_ins_res_genes/pallens_CYP6P14.fasta 
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068939.1:153190229-153192150 > pallens_ins_res_genes/pallens_CYP325Y6.fasta 
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068938.1:179411703-179435488 > pallens_ins_res_genes/pallens_CYP9J40.fasta  
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068938.1:14186089-14187960 > pallens_ins_res_genes/pallens_CYP9M10.fasta 
+samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068939.1:132829239-132831051 > pallens_ins_res_genes/pallens_CYP4H34.fasta 
+
+
+# extract quinx genes
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051863.1:71649064-718977542 > quinx_ins_res_genes/quinx_ace1.fasta # has Ns
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051862.1:22610755-22839451 > quinx_ins_res_genes/quinx_voltage_gated_sodium_channel_sub_a.fasta 
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:75016202-75019314 > quinx_ins_res_genes/quinx_CYP9AL1.fasta 
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051862.1:43704962-43706863 > quinx_ins_res_genes/quinx_CYP9J45.fasta 
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051862.1:43712959-43714949 > quinx_ins_res_genes/quinx_CYP9J35.fasta  
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:114517387-114570892 > quinx_ins_res_genes/quinx_CYP94C52v1.fasta 
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051863.1:59798841-59830897 > quinx_ins_res_genes/quinx_CYP4D42v1.fasta 
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:20433344-20436259 > quinx_ins_res_genes/quinx_CYP6BZ2.fasta  
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:20431584-20433248 > quinx_ins_res_genes/quinx_CYP6P14.fasta  
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051863.1:34464857-34466679 > quinx_ins_res_genes/quinx_CYP325Y6.fasta  
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:20447567-20449639 > quinx_ins_res_genes/quinx_CYP9J40.fasta  
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:20447567-20449639 > quinx_ins_res_genes/quinx_CYP9M10.fasta 
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051862.1:43704379-43725600 > quinx_ins_res_genes/quinx_CYP4H34.fasta 
+
+
+
