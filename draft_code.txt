@@ -65,7 +65,7 @@ samtools faidx pallens/GCF_016801865.2_pallens_genomic.fna NC_068939.1:132829239
 
 
 # extract quinx genes
-samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051863.1:71649064-718977542 > quinx_ins_res_genes/quinx_ace1.fasta # has Ns
+samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051863.1:71649064-71897754 > quinx_ins_res_genes/quinx_ace1.fasta # has Ns
 samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051862.1:22610755-22839451 > quinx_ins_res_genes/quinx_voltage_gated_sodium_channel_sub_a.fasta 
 samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:75016202-75019314 > quinx_ins_res_genes/quinx_CYP9AL1.fasta 
 samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051862.1:43704962-43706863 > quinx_ins_res_genes/quinx_CYP9J45.fasta 
@@ -76,7 +76,6 @@ samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:20433344-2043
 samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:20431584-20433248 > quinx_ins_res_genes/quinx_CYP6P14.fasta  
 samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051863.1:34464857-34466679 > quinx_ins_res_genes/quinx_CYP325Y6.fasta  
 samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:20447567-20449639 > quinx_ins_res_genes/quinx_CYP9J40.fasta  
-samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:20447567-20449639 > quinx_ins_res_genes/quinx_CYP9M10.fasta 
 samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051862.1:43704379-43725600 > quinx_ins_res_genes/quinx_CYP4H34.fasta 
 
 
