@@ -80,4 +80,16 @@ samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051861.1:20447567-2044
 samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna NC_051862.1:43704379-43725600 > quinx_ins_res_genes/quinx_CYP4H34.fasta 
 
 
+# Create the new output directory
+mkdir ins_res_gene_multi_fasta_files
+
+#  Run a loop to combine the matching files for every gene
+for pallens_file in pallens_ins_res_genes/pallens_*.fasta; do
+    gene_name=$(basename "$pallens_file" | sed 's/pallens_//')
+    cat "pallens_ins_res_genes/pallens_${gene_name}" \
+        "quinx_ins_res_genes/quinx_${gene_name}" \
+        "pipiens_ins_res_genes/pipiens_${gene_name}" \
+        > "ins_res_gene_multi_fasta_files/${gene_name}"
+done
+
 
