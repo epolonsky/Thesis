@@ -1,12 +1,4 @@
 
-bowtie2 --very-sensitive -x bowtie2_index/ref_genome_index -1 trimmomatic_output/R1_paired.fastq.gz -2 trimmomatic_output/R2_paired.fastq.gz --un-conc-gz bowtie2_output_sensitive/unmapped_reads -S bowtie2_output_sensitive/aligned.sam -p 4 > bowtie2_output_sensitive/bowtie2.log 2>&1
-
-samtools view -bS bowtie2_output_sensitive/aligned.sam -o bowtie2_output_sensitive/aligned.bam 
-samtools sort bowtie2_output_sensitive/aligned.bam -o bowtie2_output_sensitive/aligned_sorted.bam
-samtools index bowtie2_output_sensitive/aligned_sorted.bam
-
-samtools coverage bowtie2_output_sensitive/aligned_sorted.bam > aligned_sorted_sensitive_coverage_output.txt
-
 zcat bowtie2_output/unmapped_reads.1.gz | seqtk seq -A > bowtie2_output/unmapped_R1.fasta
 zcat bowtie2_output/unmapped_reads.2.gz | seqtk seq -A > bowtie2_output/unmapped_R2.fasta
 
@@ -22,9 +14,10 @@ liftoff -g pallens/GCF_016801865.2_pallens_genomic.gff -o liftoff_simple/consens
 
 busco -i consensus_simple.fasta -l diptera_odb10 -o busco_simple_out -m genome --cpu 8
 
-# extract genes
-grep 'ID=gene-LOCgeneid consensus_simple_lifted_annotation.gff3
-XM_052707444, 120419138
+
+# get the CDS from the consensus fasta
+gffread liftoff_simple/consensus_simple_lifted_annotation.gff3 -g consensus_simple.fasta -x liftoff_simple/consensus_simple_CDS.fasta
+
 #
 mkdir pipiens_ins_res_genes
 grep 'gene=LOC120414010' liftoff_simple/consensus_simple_lifted_annotation.gff3 > pipiens_ins_res_genes/pipiens_ace1.gff3
@@ -44,23 +37,17 @@ seqkit grep -n -p 'rna-XM_052710739.1' pipiens_ins_res_genes/pipiens_ace1.fasta 
 seqkit grep -n -p 'rna-XM_039573487.2' pipiens_ins_res_genes/pipiens_gaba.fasta > pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta
 seqkit grep -n -p 'rna-XM_052707444.1' pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.fasta > pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta
 
-samtools faidx quinx/GCF_015732765.1_quinx_genomic.fna
-samtools faidx genome.fa chr1:#-# > output.fasta
-
 # Create the new output directory
 mkdir ins_res_gene_multi_fasta_files
 
-#  Run a loop to combine the matching files for every gene
-for pallens_file in pallens_ins_res_genes/pallens_*.fasta; do
-    gene_name=$(basename "$pallens_file" | sed 's/pallens_//')
-    cat "pallens_ins_res_genes/pallens_${gene_name}" \
-        "quinx_ins_res_genes/quinx_${gene_name}" \
-        "pipiens_ins_res_genes/pipiens_${gene_name}" \
-        > "ins_res_gene_multi_fasta_files/${gene_name}"
-done
+cat pallens_ins_res_gene_cds/pallens_ace1.fasta pipiens_ins_res_gene_cds/pipiens_ace1_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_ace1.fasta
 
+cat pallens_ins_res_gene_cds/pallens_gaba.fasta pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_gaba.fasta
 
+cat pallens_ins_res_gene_cds/pallens_voltage_gated_sodium_channel.fasta pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_voltage_gated_sodium_channel.fasta
 
-# get the CDS from the consensus fasta
-gffread liftoff_simple/consensus_simple_lifted_annotation.gff3 -g consensus_simple.fasta -x liftoff_simple/consensus_simple_CDS.fasta
+cat quinx_ins_res_gene_cds/quinx_ace1.fasta pipiens_ins_res_gene_cds/pipiens_ace1_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_ace1.fasta
 
+cat quinx_ins_res_gene_cds/quinx_gaba.fasta pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_gaba.fasta
+
+cat quinx_ins_res_gene_cds/quinx_voltage_gated_sodium_channel.fasta pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_voltage_gated_sodium_channel.fasta
