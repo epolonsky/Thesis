@@ -1,6 +1,6 @@
 # Bioinformatics Workflow
 
-This file shows the computational workflow used to process illumina short read sequencing data, generate a consensus genome assembly, assess assembly quality, and annotate the genome using MAKER.
+This file shows the computational workflow used to process illumina short read sequencing data, generate a consensus genome assembly, assess assembly quality, and annotate the genome using Liftoff.
 
 ---
 
@@ -19,10 +19,6 @@ This file shows the computational workflow used to process illumina short read s
 | Liftoff       | 1.5.1    |
 | BUSCO         | 6.1.0    |
 | BlobToolKit   | 4.4.5    |
-| MAKER         | 3.01.04  |
-| AUGUSTUS      | 3.5.0    |
-| RepeatMasker  | 4.2.3    |
-| RepeatModeler | 2.0.8    |
 | AGAT          | 1.7.0    |
 | seqkit        | 2.13.0   |
 | genomescope   | 2.0      | 
@@ -37,9 +33,7 @@ These software packages were installed in separate Conda environments to maintai
 | ----------- | ---------------- |
 | `blast_env` | BLAST            |
 | `busco`     | BUSCO            |
-| `gatk_env`  | GATK             |
 | `btk`       | BlobToolKit      |
-| `maker`     | MAKER annotation |
 
 ---
 
@@ -121,7 +115,7 @@ samtools coverage bowtie2_output/aligned_sorted.bam > aligned_sorted_coverage_ou
 Generate a reference-guided consensus sequence from reads aligned to the reference genome.
 
 ```bash
-samtools consensus -f fasta bowtie2_output/aligned_sorted.bam -o consensus.fasta
+samtools consensus -m simple --min-depth 1 --call-fract 0.5 bowtie2_output/aligned_sorted.bam > consensus_simple.fasta
 ```
 
 ---
@@ -131,7 +125,7 @@ samtools consensus -f fasta bowtie2_output/aligned_sorted.bam -o consensus.fasta
 Evaluate genome completeness using BUSCO.
 
 ```bash
-busco -i consensus.fasta -l diptera_odb10 -o busco_out -m genome 
+busco -i consensus_simple.fasta -l diptera_odb10 -o busco_out -m genome 
 ```
 
 ---
@@ -139,7 +133,7 @@ busco -i consensus.fasta -l diptera_odb10 -o busco_out -m genome
 ## 9.  Generate BlobToolKit assembly quality visualization snailplot using BUSCO results
 
 ```bash
-blobtools create --fasta consensus.fasta my_snail_dataset
+blobtools create --fasta consensus_simple.fasta my_snail_dataset
 
 blobtools add --busco full_table.tsv my_snail_dataset
 
@@ -155,10 +149,105 @@ blobtools view --view snail --plot --out ./ snail_plot
 Liftoff is used to project existing annotations from the *Culex pipiens pallens* reference genome assembly onto the `consensus.fasta` genome assembly. The resulting GFF3 annotation file contains the transferred positions of genes and other genomic features mapped onto the consensus assembly.
 
 ```bash
-mkdir liftoff
-liftoff -g GCF_016801865.2_pallens_genomic.gff -o liftoff/consensus_lifted_annotation.gff3 consensus.fasta GCF_016801865.2_pallens_genomic.fna
+mkdir liftoff_simple
+liftoff_simple -g GCF_016801865.2_pallens_genomic.gff -o liftoff_simple/consensus_simple_lifted_annotation.gff3 consensus_simple.fasta GCF_016801865.2_pallens_genomic.fna
 ```
 
+---
+
+# Insecticide resistant gene extraction
+
+The CDS of the genes for *Culex pipiens pallens* and *Culex quinquefasciatus* were extracted from NCBI accession numbers found through literature search.
+
+For *Culex pipiens pipiens* the genes were found by using the gene id locus of the pallens gene and extracting it from the annotation.
+
+## 11. Extract CDS sequences from the Liftoff annotation
+
+The CDS sequences from the Liftoff transferred annotation were extracted from the consensus_simple.fasta assembly using gffread. This produces a FASTA file containing the coding sequences (CDS) corresponding to the transferred gene annotations.
+
+```bash
+gffread liftoff_simple/consensus_simple_lifted_annotation.gff3 -g consensus_simple.fasta -x liftoff_simple/consensus_simple_CDS.fasta
+```
+
+## 12. Identify and extract genes of interest
+
+Three insecticide resistance-associated genes were selected for comparison.
+
+For Culex pipiens pipiens, the corresponding genes were identified using the gene locus IDs associated with the Culex pipiens pallens annotation transferred by Liftoff.
+
+The following gene loci were extracted:
+
+Gene	Gene locus
+Ace-1	LOC120414010
+Voltage-gated sodium channel	LOC120419138
+GABA receptor	LOC120412863
+
+A separate GFF3 file was created for each insecticide resistance-associated gene by filtering the Liftoff annotation for the corresponding gene locus.
+
+```bash
+mkdir pipiens_ins_res_genes
+grep 'gene=LOC120414010' liftoff_simple/consensus_simple_lifted_annotation.gff3 > pipiens_ins_res_genes/pipiens_ace1.gff3
+grep 'gene=LOC120419138' liftoff_simple/consensus_simple_lifted_annotation.gff3 > pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.gff3
+grep 'gene=LOC120412863' liftoff_simple/consensus_simple_lifted_annotation.gff3 > pipiens_ins_res_genes/pipiens_gaba.gff3
+```
+
+## 13. Extract the CDS sequences for each gene
+
+The gene-specific GFF3 annotations were then used with gffread to extract the corresponding CDS sequences from the consensus_simple.fasta assembly
+
+```bash
+gffread pipiens_ins_res_genes/pipiens_ace1.gff3 -g consensus_simple.fasta -x pipiens_ins_res_genes/pipiens_ace1.fasta
+gffread pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.gff3 -g consensus_simple.fasta -x pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.fasta
+gffread pipiens_ins_res_genes/pipiens_gaba.gff3 -g consensus_simple.fasta -x pipiens_ins_res_genes/pipiens_gaba.fasta
+```
+
+## 15. Inspect the extracted FASTA sequences
+
+The FASTA headers were inspected to identify the transcript/RNA accession corresponding to each gene of interest
+
+```bash
+grep '^>' pipiens_ins_res_genes/pipiens_ace1.fasta
+grep '^>' pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.fasta
+grep '^>' pipiens_ins_res_genes/pipiens_gaba.fasta
+```
+The relevant transcript accessions were then used to extract the desired CDS sequence from each gene-specific FASTA file
+
+## 16. Extract the selected CDS sequences
+
+seqkit grep was used to select the specific transcript accession for each insecticide resistance-associated gene.
+
+```bash
+seqkit grep -n -p 'rna-XM_052710739.1' pipiens_ins_res_genes/pipiens_ace1.fasta > pipiens_ins_res_gene_cds/pipiens_ace1_CDS.fasta
+seqkit grep -n -p 'rna-XM_039573487.2' pipiens_ins_res_genes/pipiens_gaba.fasta > pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta
+seqkit grep -n -p 'rna-XM_052707444.1' pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.fasta > pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta
+```
+
+These files contain the selected Culex pipiens pipiens CDS sequences for the three genes used in downstream comparisons.
+
+## 17. Create pairwise multi-FASTA files
+
+To compare the insecticide resistance-associated genes between species, the Culex pipiens pipiens CDS sequences were combined with the corresponding CDS sequences from Culex pipiens pallens and Culex quinquefasciatus.
+
+Each resulting FASTA file contains two sequences for the same gene, allowing direct pairwise sequence comparison.
+
+The following comparisons were generated:
+
+- C. p. pallens vs. C. p. pipiens
+- C. quinquefasciatus vs. C. p. pipiens
+
+```
+mkdir ins_res_gene_multi_fasta_files
+
+# C. p. pallens vs. C. p. pipiens
+cat pallens_ins_res_gene_cds/pallens_ace1.fasta pipiens_ins_res_gene_cds/pipiens_ace1_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_ace1.fasta
+cat pallens_ins_res_gene_cds/pallens_gaba.fasta pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_gaba.fasta
+cat pallens_ins_res_gene_cds/pallens_voltage_gated_sodium_channel.fasta pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_voltage_gated_sodium_channel.fasta
+
+# C. quinquefasciatus vs. C. p. pipiens
+cat quinx_ins_res_gene_cds/quinx_ace1.fasta pipiens_ins_res_gene_cds/pipiens_ace1_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_ace1.fasta
+cat quinx_ins_res_gene_cds/quinx_gaba.fasta pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_gaba.fasta
+cat quinx_ins_res_gene_cds/quinx_voltage_gated_sodium_channel.fasta pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_voltage_gated_sodium_channel.fasta
+```
 ---
 
 # Annotation statistics
@@ -168,7 +257,7 @@ liftoff -g GCF_016801865.2_pallens_genomic.gff -o liftoff/consensus_lifted_annot
 Annotation statistics were generated from the Liftoff-generated GFF3 annotation using AGAT:
 
 ```bash
-agat_sp_statistics.pl --gff consensus_lifted_annotation.gff3 -o liftoff/liftoff_annotation_gff_statistics.txt
+agat_sp_statistics.pl --gff consensus_lifted_annotation.gff3 -o liftoff_simple/liftoff_simple_annotation_gff_statistics.txt
 ```
 
 The AGAT output file contains statistics for each annotation feature type (mRNA, lncRNA, rRNA, tRNA, snRNA, snoRNA, and transcript). For protein-coding gene annotation statistics, values were taken from the following section:
@@ -200,7 +289,7 @@ The following annotation statistics were obtained from the AGAT output:
 Protein sequences were extracted from the Liftoff annotation using gffread:
 
 ```bash
-gffread consensus_lifted_annotation.gff3 -g consensus.fasta -y consensus_proteins.fasta
+gffread consensus_simple_lifted_annotation.gff3 -g consensus_simple.fasta -y consensus_simple_proteins.fasta
 ```
 
 ## Number of predicted protein sequences
@@ -216,7 +305,7 @@ grep -c "^>" proteins.fa
 Mean protein length was calculated from the extracted protein FASTA file:
 
 ```bash
-seqkit fx2tab -nl consensus_proteins.fasta | \
+seqkit fx2tab -nl consensus_simple_proteins.fasta | \
 awk '{sum+=length($2); n++} END {print sum/n}'
 ```
 
@@ -225,7 +314,7 @@ awk '{sum+=length($2); n++} END {print sum/n}'
 Genome assembly size was calculated from the genome FASTA:
 
 ```bash
-seqkit stats consensus.fasta
+seqkit stats simple_consensus.fasta
 ```
 
 The sum_len value was used as the total genome size.
