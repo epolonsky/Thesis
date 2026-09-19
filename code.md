@@ -137,9 +137,9 @@ cd busco_simple_out
 
 blobtools create --fasta ~/data/consensus_simple.fasta my_snail_dataset
 
-blobtools add --busco full_table.tsv my_snail_dataset
+blobtools add --busco run_diptera_odb10/full_table.tsv my_snail_dataset
 
-blobtools view --view snail --plot --out ./ snail_plot
+blobtools view --view snail --plot --out ./ my_snail_dataset
 ```
 
 ---
