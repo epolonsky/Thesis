@@ -133,7 +133,9 @@ busco -i consensus_simple.fasta -l diptera_odb10 -o busco_out -m genome
 ## 9.  Generate BlobToolKit assembly quality visualization snailplot using BUSCO results
 
 ```bash
-blobtools create --fasta consensus_simple.fasta my_snail_dataset
+cd busco_simple_out
+
+blobtools create --fasta ~/data/consensus_simple.fasta my_snail_dataset
 
 blobtools add --busco full_table.tsv my_snail_dataset
 
