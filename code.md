@@ -197,8 +197,6 @@ samtools faidx consensus_simple.fasta OZ004313.1:172172965-172310683 > pipiens_i
 
 seqkit grep was used to select the specific transcript accession for each insecticide resistance-associated gene.
 
-
-
 ```bash
 mkdir pipiens_ins_res_genes/pipiens_cds
 
@@ -223,6 +221,8 @@ The following comparisons were generated:
 - C. quinquefasciatus vs. C. p. pipiens
 
 ```bash
+cd ~/data
+
 mkdir ins_res_gene_multi_fasta_files
 
 # C. p. pallens vs. C. p. pipiens
@@ -239,6 +239,55 @@ cat quinx_pallens_genes/quinx_pallens_cds/quinx_rdl_gaba_cds.fasta pipiens_ins_r
 
 cat quinx_pallens_genes/quinx_pallens_cds/quinx_sodium_channel_cds.fasta pipiens_ins_res_genes/pipiens_cds/pipiens_sodium_channel_cds.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_sodium_channel.fasta
 ```
+---
+## 15. Translate extracted CDS sequences from *C. p. pipiens* to their respective amino acid sequence
+
+biopython was used to translate the extracted CDS sequences.
+
+```bash
+cd pipiens_ins_res_genes
+
+python - <<'PY'
+from Bio import SeqIO
+from pathlib import Path
+
+input_dir = Path("pipiens_cds")
+output_dir = Path("pipiens_prot")
+output_dir.mkdir(exist_ok=True)
+
+for cds_file in input_dir.glob("*.fasta"):
+    protein_file = output_dir / cds_file.name.replace("_cds.fasta", "_prot.fasta")
+
+    with open(protein_file, "w") as out:
+        for record in SeqIO.parse(cds_file, "fasta"):
+            record.seq = record.seq.translate()
+            SeqIO.write(record, out, "fasta")
+
+    print(f"Translated: {cds_file} -> {protein_file}")
+PY
+```
+---
+
+## 16. Create pairwise multi-FASTA files for the protein sequences
+
+```bash
+cd ~/data
+
+# C. p. pallens vs. C. p. pipiens
+cat quinx_pallens_genes/quinx_pallens_prot/pallens_ace1_prot.fasta pipiens_ins_res_genes/pipiens_prot/pipiens_ace1_prot.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_ace1_prot.fasta
+
+cat quinx_pallens_genes/quinx_pallens_prot/pallens_rdl_gaba_prot.fasta pipiens_ins_res_genes/pipiens_prot/pipiens_rdl_gaba_prot.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_rdl_gaba_prot.fasta
+
+cat quinx_pallens_genes/quinx_pallens_prot/pallens_sodium_channel_prot.fasta pipiens_ins_res_genes/pipiens_prot/pipiens_sodium_channel_prot.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_sodium_channel_prot.fasta
+
+# C. quinquefasciatus vs. C. p. pipiens
+cat quinx_pallens_genes/quinx_pallens_prot/quinx_ace1_prot.fasta pipiens_ins_res_genes/pipiens_prot/pipiens_ace1_prot.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_ace1_prot.fasta
+
+cat quinx_pallens_genes/quinx_pallens_prot/quinx_rdl_gaba_prot.fasta pipiens_ins_res_genes/pipiens_prot/pipiens_rdl_gaba_prot.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_rdl_gaba_prot.fasta
+
+cat quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta pipiens_ins_res_genes/pipiens_prot/pipiens_sodium_channel_prot.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_sodium_channel_prot.fasta
+```
+
 ---
 
 # Annotation statistics
