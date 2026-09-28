@@ -188,45 +188,30 @@ A separate GFF3 file was created for each insecticide resistance-associated gene
 
 ```bash
 mkdir pipiens_ins_res_genes
-grep 'gene=LOC120414010' liftoff_simple/consensus_simple_lifted_annotation.gff3 > pipiens_ins_res_genes/pipiens_ace1.gff3
-grep 'gene=LOC120419138' liftoff_simple/consensus_simple_lifted_annotation.gff3 > pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.gff3
-grep 'gene=LOC120412863' liftoff_simple/consensus_simple_lifted_annotation.gff3 > pipiens_ins_res_genes/pipiens_gaba.gff3
+samtools faidx consensus_simple.fasta OZ004313.1:67389111-67610679 > pipiens_ins_res_genes/pipiens_ace1.fasta
+samtools faidx consensus_simple.fasta OZ004312.1:191453602-191579832 > pipiens_ins_res_genes/pipiens_sodium_channel.fasta
+samtools faidx consensus_simple.fasta OZ004313.1:172172965-172310683 > pipiens_ins_res_genes/pipiens_rdlbagaba.fasta
 ```
 
 ## 13. Extract the CDS sequences for each gene
 
-The gene-specific GFF3 annotations were then used with gffread to extract the corresponding CDS sequences from the consensus_simple.fasta assembly
-
-```bash
-gffread pipiens_ins_res_genes/pipiens_ace1.gff3 -g consensus_simple.fasta -x pipiens_ins_res_genes/pipiens_ace1.fasta
-gffread pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.gff3 -g consensus_simple.fasta -x pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.fasta
-gffread pipiens_ins_res_genes/pipiens_gaba.gff3 -g consensus_simple.fasta -x pipiens_ins_res_genes/pipiens_gaba.fasta
-```
-
-## 15. Inspect the extracted FASTA sequences
-
-The FASTA headers were inspected to identify the transcript/RNA accession corresponding to each gene of interest
-
-```bash
-grep '^>' pipiens_ins_res_genes/pipiens_ace1.fasta
-grep '^>' pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.fasta
-grep '^>' pipiens_ins_res_genes/pipiens_gaba.fasta
-```
-The relevant transcript accessions were then used to extract the desired CDS sequence from each gene-specific FASTA file
-
-## 16. Extract the selected CDS sequences
-
 seqkit grep was used to select the specific transcript accession for each insecticide resistance-associated gene.
 
+
+
 ```bash
-seqkit grep -n -p 'rna-XM_052710739.1' pipiens_ins_res_genes/pipiens_ace1.fasta > pipiens_ins_res_gene_cds/pipiens_ace1_CDS.fasta
-seqkit grep -n -p 'rna-XM_039573487.2' pipiens_ins_res_genes/pipiens_gaba.fasta > pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta
-seqkit grep -n -p 'rna-XM_052707444.1' pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.fasta > pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta
+mkdir pipiens_ins_res_genes/pipiens_cds
+
+seqkit grep -p 'rna-XM_052710737.1' liftoff_simple/consensus_simple_CDS.fasta > pipiens_ins_res_genes/pipiens_cds/pipiens_ace1_cds.fasta
+
+seqkit grep -p 'rna-XM_052707395.1' liftoff_simple/consensus_simple_CDS.fasta > pipiens_ins_res_genes/pipiens_cds/pipiens_sodium_channel_cds.fasta
+
+seqkit grep -p 'rna-XM_039573482.2' liftoff_simple/consensus_simple_CDS.fasta > pipiens_ins_res_genes/pipiens_cds/pipiens_rdlbagaba_cds.fasta
 ```
 
 These files contain the selected Culex pipiens pipiens CDS sequences for the three genes used in downstream comparisons.
 
-## 17. Create pairwise multi-FASTA files
+## 14. Create pairwise multi-FASTA files
 
 To compare the insecticide resistance-associated genes between species, the Culex pipiens pipiens CDS sequences were combined with the corresponding CDS sequences from Culex pipiens pallens and Culex quinquefasciatus.
 
@@ -237,18 +222,22 @@ The following comparisons were generated:
 - C. p. pallens vs. C. p. pipiens
 - C. quinquefasciatus vs. C. p. pipiens
 
-```
+```bash
 mkdir ins_res_gene_multi_fasta_files
 
 # C. p. pallens vs. C. p. pipiens
-cat pallens_ins_res_gene_cds/pallens_ace1.fasta pipiens_ins_res_gene_cds/pipiens_ace1_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_ace1.fasta
-cat pallens_ins_res_gene_cds/pallens_gaba.fasta pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_gaba.fasta
-cat pallens_ins_res_gene_cds/pallens_voltage_gated_sodium_channel.fasta pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_voltage_gated_sodium_channel.fasta
+cat quinx_pallens_genes/quinx_pallens_cds/pallens_ace1_cds.fasta pipiens_ins_res_genes/pipiens_cds/pipiens_ace1_cds.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_ace1.fasta
+
+cat quinx_pallens_genes/quinx_pallens_cds/pallens_rdl_gaba_cds.fasta pipiens_ins_res_genes/pipiens_cds/pipiens_rdl_gaba_cds.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_rdl_gaba.fasta
+
+cat quinx_pallens_genes/quinx_pallens_cds/pallens_sodium_channel_cds.fasta pipiens_ins_res_genes/pipiens_cds/pipiens_sodium_channel_cds.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_sodium_channel.fasta
 
 # C. quinquefasciatus vs. C. p. pipiens
-cat quinx_ins_res_gene_cds/quinx_ace1.fasta pipiens_ins_res_gene_cds/pipiens_ace1_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_ace1.fasta
-cat quinx_ins_res_gene_cds/quinx_gaba.fasta pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_gaba.fasta
-cat quinx_ins_res_gene_cds/quinx_voltage_gated_sodium_channel.fasta pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_voltage_gated_sodium_channel.fasta
+cat quinx_pallens_genes/quinx_pallens_cds/quinx_ace1_cds.fasta pipiens_ins_res_genes/pipiens_cds/pipiens_ace1_cds.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_ace1.fasta
+
+cat quinx_pallens_genes/quinx_pallens_cds/quinx_rdl_gaba_cds.fasta pipiens_ins_res_genes/pipiens_cds/pipiens_rdl_gaba_cds.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_rdl_gaba.fasta
+
+cat quinx_pallens_genes/quinx_pallens_cds/quinx_sodium_channel_cds.fasta pipiens_ins_res_genes/pipiens_cds/pipiens_sodium_channel_cds.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_sodium_channel.fasta
 ```
 ---
 
@@ -259,7 +248,7 @@ cat quinx_ins_res_gene_cds/quinx_voltage_gated_sodium_channel.fasta pipiens_ins_
 Annotation statistics were generated from the Liftoff-generated GFF3 annotation using AGAT:
 
 ```bash
-agat_sp_statistics.pl --gff consensus_lifted_annotation.gff3 -o liftoff_simple/liftoff_simple_annotation_gff_statistics.txt
+agat_sp_statistics.pl --gff consensus_simple_lifted_annotation.gff3 -o liftoff_simple/liftoff_simple_annotation_gff_statistics.txt
 ```
 
 The AGAT output file contains statistics for each annotation feature type (mRNA, lncRNA, rRNA, tRNA, snRNA, snoRNA, and transcript). For protein-coding gene annotation statistics, values were taken from the following section:
