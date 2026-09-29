@@ -2,7 +2,7 @@
 
 This file shows the computational workflow used to process illumina short read sequencing data, generate a consensus genome assembly, assess assembly quality, and annotate the genome using Liftoff.
 
-# Quality assessment of raw sequencing reads
+## Quality assessment of raw sequencing reads
 
 Assess raw Illumina read quality using FastQC.
 
