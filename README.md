@@ -16,7 +16,7 @@ The workflow includes:
 6. Assembly completeness assessment
 7. Genome quality visualization
 8. Repeat identification and masking
-9. Evidence-supported genome annotation using MAKER
+9. Evidence-supported genome annotation using Braker
 
 The pipeline was designed to produce a high-quality genome assembly and annotation for downstream genomic analyses.
 
@@ -46,15 +46,13 @@ The workflow was performed using Conda-managed environments to maintain software
 | SAMtools      | 1.19.2   |
 | Seqtk         | 1.5-r133 |
 | BLAST+        | 2.17.0   |
-| GATK          | 4.6.2.0  |
 | Jellyfish     | 2.2.10   |
 | Liftoff       | 1.5.1    |
 | BUSCO         | 6.1.0    |
 | BlobToolKit   | 4.4.5    |
-| MAKER         | 3.01.04  |
 | AUGUSTUS      | 3.5.0    |
-| RepeatMasker  | 4.2.3    |
-| RepeatModeler | 2.0.8    |
+| RepeatMasker  | 4.2.4    |
+| RepeatModeler | 2.0.9    |
 | AGAT          | 1.7.0    |
 | seqkit        | 2.13.0   |
 | genomescope   | 2.0      |
@@ -71,6 +69,8 @@ Software packages were installed into separate Conda environments to avoid depen
 | `busco` | BUSCO genome completeness assessment |
 | `gatk_env` | GATK analysis |
 | `btk` | BlobToolKit visualization |
-| `maker` | MAKER genome annotation |
+| `repeatmod_env` | Run repeatmodler |
+| `repeatmask_env` | Run repeatmasker |
+
 
 ---
