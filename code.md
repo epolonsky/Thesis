@@ -2,44 +2,7 @@
 
 This file shows the computational workflow used to process illumina short read sequencing data, generate a consensus genome assembly, assess assembly quality, and annotate the genome using Liftoff.
 
----
-
-# Software
-
-| Software      | Version  |
-| ------------- | -------- |
-| Conda         | 26.3.2   |
-| Trimmomatic   | 0.40     |
-| FastQC        | 0.12.1   |
-| Bowtie2       | 2.5.5    |
-| SAMtools      | 1.19.2   |
-| Seqtk         | 1.5-r133 |
-| BLAST+        | 2.17.0   |
-| Jellyfish     | 2.2.10   |
-| Liftoff       | 1.5.1    |
-| BUSCO         | 6.1.0    |
-| BlobToolKit   | 4.4.5    |
-| AGAT          | 1.7.0    |
-| seqkit        | 2.13.0   |
-| genomescope   | 2.0      | 
-
----
-
-# Conda Environments
-
-These software packages were installed in separate Conda environments to maintain compatible software dependencies.
-
-| Environment | Purpose          |
-| ----------- | ---------------- |
-| `blast_env` | BLAST            |
-| `busco`     | BUSCO            |
-| `btk`       | BlobToolKit      |
-
----
-
-# Workflow
-
-## 1. Quality assessment of raw sequencing reads
+# Quality assessment of raw sequencing reads
 
 Assess raw Illumina read quality using FastQC.
 
@@ -48,9 +11,7 @@ mkdir fastqc_output
 fastqc -o fastqc_output F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz
 ```
 
----
-
-## 2. Trim sequencing reads
+# Trim sequencing reads
 
 Trim the first 20 bp from each read to remove the barcode sequence.
 
@@ -61,17 +22,13 @@ mkdir trimmomatic_output
 trimmomatic PE -threads 2 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz trimmomatic_output/R1_paired.fastq.gz trimmomatic_output/R1_unpaired.fastq.gz trimmomatic_output/R2_paired.fastq.gz trimmomatic_output/R2_unpaired.fastq.gz HEADCROP:20
 ```
 
----
-
-## 3. Quality assessment after trimming
+ # Quality assessment after trimming
 
 ```bash
 fastqc -o fastqc_output R1_paired.fastq.gz R2_paired.fastq.gz
 ```
 
----
-
-## 4. Map reads to the Culex pipiens reference genome
+# Map reads to the Culex pipiens reference genome
 
 Reads were mapped against the NCBI chromosome-level assembly:
 
@@ -90,9 +47,7 @@ mkdir -p bowtie2_output
 bowtie2 -x bowtie2_index/ref_genome_index -1 trimmomatic_output/R1_paired.fastq.gz -2 trimmomatic_output/R2_paired.fastq.gz --un-conc-gz bowtie2_output/unmapped_reads -S bowtie2_output/aligned.sam -p 4 > bowtie2_output/bowtie2.log 2>&1
 ```
 
----
-
-## 5. Convert aligned SAM files to sorted and indexed BAM
+# Convert aligned SAM files to sorted and indexed BAM
 
 ```bash
 samtools view -bS bowtie2_output/aligned.sam -o aligned.bam
@@ -100,17 +55,13 @@ samtools sort bowtie2_output/aligned.bam -o bowtie2_output/aligned_sorted.bam
 samtools index bowtie2_output/aligned_sorted.bam
 ```
 
----
-
-## 6. Calculate sequencing coverage
+# Calculate sequencing coverage
 
 ```bash
 samtools coverage bowtie2_output/aligned_sorted.bam > aligned_sorted_coverage_output.txt
 ```
 
----
-
-## 7. Generate a reference-guided consensus genome 
+# Generate a reference-guided consensus genome 
 
 Generate a reference-guided consensus sequence from reads aligned to the reference genome.
 
@@ -118,9 +69,7 @@ Generate a reference-guided consensus sequence from reads aligned to the referen
 samtools consensus -m simple --min-depth 1 --call-fract 0.5 bowtie2_output/aligned_sorted.bam > consensus_simple.fasta
 ```
 
----
-
-## 8. Assess assembly completeness
+# Assess assembly completeness
 
 Evaluate genome completeness using BUSCO.
 
@@ -128,9 +77,7 @@ Evaluate genome completeness using BUSCO.
 busco -i consensus_simple.fasta -l diptera_odb10 -o busco_out -m genome 
 ```
 
----
-
-## 9.  Generate BlobToolKit assembly quality visualization snailplot using BUSCO results
+#  Generate BlobToolKit assembly quality visualization snailplot using BUSCO results
 
 ```bash
 cd busco_simple_out
@@ -144,9 +91,7 @@ blobtools view --view snail --plot --out ./ my_snail_dataset
 
 ---
 
-# Liftoff annotation transfer
-
-## 10. Generate an annotation using Liftoff
+# Generate an annotation using Liftoff
 
 Liftoff is used to project existing annotations from the *Culex pipiens pallens* reference genome assembly onto the `consensus.fasta` genome assembly. The resulting GFF3 annotation file contains the transferred positions of genes and other genomic features mapped onto the consensus assembly.
 
@@ -163,7 +108,7 @@ The CDS of the genes for *Culex pipiens pallens* and *Culex quinquefasciatus* we
 
 For *Culex pipiens pipiens* the genes were found by using the gene id locus of the pallens gene and extracting it from the annotation.
 
-## 11. Extract CDS sequences from the Liftoff annotation
+# Extract CDS sequences from the Liftoff annotation
 
 The CDS sequences from the Liftoff transferred annotation were extracted from the consensus_simple.fasta assembly using gffread. This produces a FASTA file containing the coding sequences (CDS) corresponding to the transferred gene annotations.
 
@@ -171,7 +116,7 @@ The CDS sequences from the Liftoff transferred annotation were extracted from th
 gffread liftoff_simple/consensus_simple_lifted_annotation.gff3 -g consensus_simple.fasta -x liftoff_simple/consensus_simple_CDS.fasta
 ```
 
-## 12. Identify and extract genes of interest
+# Identify and extract genes of interest
 
 Three insecticide resistance-associated genes were selected for comparison.
 
@@ -193,7 +138,7 @@ samtools faidx consensus_simple.fasta OZ004312.1:191453602-191579832 > pipiens_i
 samtools faidx consensus_simple.fasta OZ004313.1:172172965-172310683 > pipiens_ins_res_genes/pipiens_rdlbagaba.fasta
 ```
 
-## 13. Extract the CDS sequences for each gene
+# Extract the CDS sequences for each gene
 
 seqkit grep was used to select the specific transcript accession for each insecticide resistance-associated gene.
 
@@ -209,7 +154,7 @@ seqkit grep -p 'rna-XM_039573482.2' liftoff_simple/consensus_simple_CDS.fasta > 
 
 These files contain the selected Culex pipiens pipiens CDS sequences for the three genes used in downstream comparisons.
 
-## 14. Create pairwise multi-FASTA files
+# Create pairwise multi-FASTA files
 
 To compare the insecticide resistance-associated genes between species, the Culex pipiens pipiens CDS sequences were combined with the corresponding CDS sequences from Culex pipiens pallens and Culex quinquefasciatus.
 
@@ -239,8 +184,8 @@ cat quinx_pallens_genes/quinx_pallens_cds/quinx_rdl_gaba_cds.fasta pipiens_ins_r
 
 cat quinx_pallens_genes/quinx_pallens_cds/quinx_sodium_channel_cds.fasta pipiens_ins_res_genes/pipiens_cds/pipiens_sodium_channel_cds.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_sodium_channel.fasta
 ```
----
-## 15. Translate extracted CDS sequences from *C. p. pipiens* to their respective amino acid sequence
+
+# Translate extracted CDS sequences from *C. p. pipiens* to their respective amino acid sequence
 
 biopython was used to translate the extracted CDS sequences.
 
@@ -266,9 +211,8 @@ for cds_file in input_dir.glob("*.fasta"):
     print(f"Translated: {cds_file} -> {protein_file}")
 PY
 ```
----
 
-## 16. Create pairwise multi-FASTA files for the protein sequences
+# Create pairwise multi-FASTA files for the protein sequences
 
 ```bash
 cd ~/data
@@ -287,8 +231,6 @@ cat quinx_pallens_genes/quinx_pallens_prot/quinx_rdl_gaba_prot.fasta pipiens_ins
 
 cat quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta pipiens_ins_res_genes/pipiens_prot/pipiens_sodium_channel_prot.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_sodium_channel_prot.fasta
 ```
-
----
 
 # Annotation statistics
 
