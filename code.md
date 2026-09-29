@@ -102,13 +102,13 @@ liftoff_simple -g GCF_016801865.2_pallens_genomic.gff -o liftoff_simple/consensu
 
 ---
 
-## Insecticide resistant gene extraction
+# Insecticide resistant gene extraction
 
 The CDS of the genes for *Culex pipiens pallens* and *Culex quinquefasciatus* were extracted from NCBI accession numbers found through literature search.
 
 For *Culex pipiens pipiens* the genes were found by using the gene id locus of the pallens gene and extracting it from the annotation.
 
-# Extract CDS sequences from the Liftoff annotation
+## Extract CDS sequences from the Liftoff annotation
 
 The CDS sequences from the Liftoff transferred annotation were extracted from the consensus_simple.fasta assembly using gffread. This produces a FASTA file containing the coding sequences (CDS) corresponding to the transferred gene annotations.
 
