@@ -1,53 +1,22 @@
+Swedish Genome Annotation codes
 
-zcat bowtie2_output/unmapped_reads.1.gz | seqtk seq -A > bowtie2_output/unmapped_R1.fasta
-zcat bowtie2_output/unmapped_reads.2.gz | seqtk seq -A > bowtie2_output/unmapped_R2.fasta
+# Install and run repeatmodeler 2
 
-mkdir unmapped_blast_output
-blastn -query bowtie2_output/unmapped_R1.fasta -db nt -remote -out unmapped_blast_output/pair1_blast.tsv -outfmt "6 qseqid saccver stitle pident length qlen qcovs evalue bitscore"
+```bash
+cd ~/data
+conda create -n repeatmod_env -c conda-forge -c bioconda repeatmodeler=2.0.9
+conda activate repeatmod_env
 
-blastn -query bowtie2_output/unmapped_R2.fasta -db nt -remote -out unmapped_blast_output/pair2_blast.tsv -outfmt "6 qseqid saccver stitle pident length qlen qcovs evalue bitscore"
+BuildDatabase -name idCulPipi1_genome_db GCA_963924435.1_idCulPipi1.1_genomic.fna
+nohup RepeatModeler -database idCulPipi1_genome_db -threads 8 &
+```
 
+# Install and run repeatmasker
 
-samtools consensus -m simple --min-depth 1 --call-fract 0.5 bowtie2_output/aligned_sorted.bam > consensus_simple.fasta
+```bash
+cd ~/data
+conda create -n repeatmask_env -c conda-forge -c bioconda repeatmasker=4.2.4
+conda activate repeatmask_env
 
-liftoff -g pallens/GCF_016801865.2_pallens_genomic.gff -o liftoff_simple/consensus_simple_lifted_annotation.gff3 consensus_simple.fasta pallens/GCF_016801865.2_pallens_genomic.fna
-
-busco -i consensus_simple.fasta -l diptera_odb10 -o busco_simple_out -m genome --cpu 8
-
-
-# get the CDS from the consensus fasta
-gffread liftoff_simple/consensus_simple_lifted_annotation.gff3 -g consensus_simple.fasta -x liftoff_simple/consensus_simple_CDS.fasta
-
-#
-mkdir pipiens_ins_res_genes
-grep 'gene=LOC120414010' liftoff_simple/consensus_simple_lifted_annotation.gff3 > pipiens_ins_res_genes/pipiens_ace1.gff3
-grep 'gene=LOC120419138' liftoff_simple/consensus_simple_lifted_annotation.gff3 > pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.gff3
-grep 'gene=LOC120412863' liftoff_simple/consensus_simple_lifted_annotation.gff3 > pipiens_ins_res_genes/pipiens_gaba.gff3
-
-#
-gffread pipiens_ins_res_genes/pipiens_ace1.gff3 -g consensus_simple.fasta -x pipiens_ins_res_genes/pipiens_ace1.fasta
-gffread pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.gff3 -g consensus_simple.fasta -x pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.fasta
-gffread pipiens_ins_res_genes/pipiens_gaba.gff3 -g consensus_simple.fasta -x pipiens_ins_res_genes/pipiens_gaba.fasta
-
-grep '^>' pipiens_ins_res_genes/pipiens_ace1.fasta
-grep '^>' pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.fasta
-grep '^>' pipiens_ins_res_genes/pipiens_gaba.fasta
-
-seqkit grep -n -p 'rna-XM_052710739.1' pipiens_ins_res_genes/pipiens_ace1.fasta > pipiens_ins_res_gene_cds/pipiens_ace1_CDS.fasta
-seqkit grep -n -p 'rna-XM_039573487.2' pipiens_ins_res_genes/pipiens_gaba.fasta > pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta
-seqkit grep -n -p 'rna-XM_052707444.1' pipiens_ins_res_genes/pipiens_voltage_gated_sodium_channel.fasta > pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta
-
-# Create the new output directory
-mkdir ins_res_gene_multi_fasta_files
-
-cat pallens_ins_res_gene_cds/pallens_ace1.fasta pipiens_ins_res_gene_cds/pipiens_ace1_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_ace1.fasta
-
-cat pallens_ins_res_gene_cds/pallens_gaba.fasta pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_gaba.fasta
-
-cat pallens_ins_res_gene_cds/pallens_voltage_gated_sodium_channel.fasta pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_voltage_gated_sodium_channel.fasta
-
-cat quinx_ins_res_gene_cds/quinx_ace1.fasta pipiens_ins_res_gene_cds/pipiens_ace1_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_ace1.fasta
-
-cat quinx_ins_res_gene_cds/quinx_gaba.fasta pipiens_ins_res_gene_cds/pipiens_gaba_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_gaba.fasta
-
-cat quinx_ins_res_gene_cds/quinx_voltage_gated_sodium_channel.fasta pipiens_ins_res_gene_cds/pipiens_voltage_gated_sodium_channel_CDS.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_voltage_gated_sodium_channel.fasta
+nohup RepeatMasker -pa 4 -gff -xsmall -lib idCulPipi1_genome_db-families.fa GCA_963924435.1_idCulPipi1.1_genomic.fna &
+```
