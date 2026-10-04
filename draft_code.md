@@ -21,6 +21,14 @@ conda activate repeatmask_env
 nohup RepeatMasker -pa 4 -gff -xsmall -lib repeat_modled_idCulPipi1/consensi.fa -dir repeat_masked_idCulPipi1 GCA_963924435.1_idCulPipi1.1_genomic.fna &
 ```
 
+# Install and run Braker
+
+```bash
+conda create -n braker_env -c bioconda -c conda-forge braker3
+conda activate braker_env
+
+```
+
 
 
 
