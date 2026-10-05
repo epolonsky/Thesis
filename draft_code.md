@@ -24,8 +24,11 @@ nohup RepeatMasker -pa 4 -gff -xsmall -lib repeat_modled_idCulPipi1/consensi.fa 
 # Install and run Braker
 
 ```bash
-conda create -n braker_env -c bioconda -c conda-forge braker3
-conda activate braker_env
+conda create -n braker4_env -c conda-forge python=3.11 apptainer snakemake=8.18.2 pandas
+conda activate braker4_env
+git clone https://github.com/Gaius-Augustus/BRAKER4
+cd ~/data/BRAKER4
+cp config.ini.example config.ini
 
 ```
 
