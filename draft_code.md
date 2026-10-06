@@ -8,7 +8,7 @@ conda create -n repeatmod_env -c conda-forge -c bioconda repeatmodeler=2.0.9
 conda activate repeatmod_env
 
 BuildDatabase -name idCulPipi1_genome_db GCA_963924435.1_idCulPipi1.1_genomic.fna
-nohup RepeatModeler -database idCulPipi1_genome_db -threads 8 -dir RM_idCulPipi1 & # change RM to repeat_modled when done runnning
+nohup RepeatModeler -database idCulPipi1_genome_db -threads 8 -dir repeat_modled_idCulPipi1 & # change RM to repeat_modled when done runnning
 ```
 
 # Install and run repeatmasker
@@ -29,7 +29,20 @@ conda activate braker4_env
 git clone https://github.com/Gaius-Augustus/BRAKER4
 cd ~/data/BRAKER4
 cp config.ini.example config.ini
+```
 
+Change what is in the samples.csv file using nano to:
+
+```csv
+sample_name,genome,genome_masked,protein_fasta,bam_files,fastq_r1,fastq_r2,sra_ids,varus_genus,varus_species,isoseq_bam,isoseq_fastq,busco_lineage,reference_gtf
+idCulPipi1,/home/elena/data/GCA_963924435.1_idCulPipi1.1_genomic.fna,/home/elena/data/repeat_masked_idCulPipi1/GCA_963924435.1_idCulPipi1.1_genomic.fna.masked,/home/elena/data/quinx/GCF_015732765.1_quinx_protein.faa:/home/elena/data/pallens/GCF_016801865.2_pallens_protein.faa,,,,,,,,,diptera_odb12,
+```
+
+Run Braker through snakemake
+
+```bash
+cd ~/data/BRAKER4
+snakemake --cores 8 --use-singularity --singularity-prefix .singularity_cache --singularity-args "-B /home" --latency-wait 120 --restart-times 3
 ```
 
 
