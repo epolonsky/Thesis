@@ -38,9 +38,18 @@ sample_name,genome,genome_masked,protein_fasta,bam_files,fastq_r1,fastq_r2,sra_i
 idCulPipi1,/home/elena/data/GCA_963924435.1_idCulPipi1.1_genomic.fna,/home/elena/data/repeat_masked_idCulPipi1/GCA_963924435.1_idCulPipi1.1_genomic.fna.masked,/home/elena/data/quinx/GCF_015732765.1_quinx_protein.faa:/home/elena/data/pallens/GCF_016801865.2_pallens_protein.faa,,,,,,,,,diptera_odb12,
 ```
 
+Install the busco lineage
+
+```bash
+conda activate busco
+cd ~/data/BRAKER4
+busco --download diptera_odb12 --download_path shared_data/busco_downloads
+```
+
 Run Braker through snakemake
 
 ```bash
+conda activate repeatmask_env
 cd ~/data/BRAKER4
 snakemake --cores 8 --use-singularity --singularity-prefix .singularity_cache --singularity-args "-B /home" --latency-wait 120 --restart-times 3
 ```
