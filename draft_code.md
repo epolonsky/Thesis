@@ -89,7 +89,7 @@ conda create -n repeatmod_env -c conda-forge -c bioconda repeatmodeler=2.0.9
 conda activate repeatmod_env
 
 BuildDatabase -name idCulPipi1_genome_db GCA_963924435.1_idCulPipi1.1_genomic.fna
-nohup RepeatModeler -database idCulPipi1_genome_db -threads 8 -dir repeat_modled_idCulPipi1 & # change RM to repeat_modled when done runnning
+nohup RepeatModeler -database idCulPipi1_genome_db -threads 8 -dir repeat_modled_idCulPipi1 & 
 ```
 
 ## Install and run repeatmasker
@@ -102,7 +102,7 @@ conda activate repeatmask_env
 nohup RepeatMasker -pa 4 -gff -xsmall -lib repeat_modled_idCulPipi1/consensi.fa -dir repeat_masked_idCulPipi1 GCA_963924435.1_idCulPipi1.1_genomic.fna &
 ```
 
-## Install and run Braker
+## Install and run Braker for gene prediction
 
 ```bash
 conda create -n braker4_env -c conda-forge python=3.11 apptainer snakemake=8.18.2 pandas
@@ -132,10 +132,23 @@ Run Braker through snakemake
 ```bash
 conda activate repeatmask_env
 cd ~/data/BRAKER4
-snakemake --cores 8 --use-singularity --singularity-prefix .singularity_cache --singularity-args "-B /home" --latency-wait 120 --restart-times 3
+nohup snakemake --cores 8 --use-singularity --singularity-prefix .singularity_cache --singularity-args "-B /home" --latency-wait 120 --restart-times 3 &
 ```
 
-## Transfer the breaker annotation to my consensus sequence with Liftoff
+## Install and run eggNOG mapper for functional annotation
+
+```bash
+https://github.com/eggnogdb/eggnog-mapper
+conda create -n eggnog_env -c conda-forge -c bioconda python=3.11
+conda activate eggnog_env
+pip install eggnog-mapper
+cd ~/data/eggnog-mapper
+nohup python download_eggnog_data.py -y &
+
+nohup python emapper.py -i ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz -o idCulPipi1_eggnog --data_dir ~/data/eggnog-mapper/data --cpu 8 &
+```
+
+## Transfer the breaker annotation to my consensus sequence with Liftoff (fix this when gene prediction is done)
 
 ```bash
 cd ~/data
