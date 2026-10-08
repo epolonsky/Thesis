@@ -1,74 +1,6 @@
-Swedish Genome Annotation codes
-
-# Install and run repeatmodeler 2
-
-```bash
-cd ~/data
-conda create -n repeatmod_env -c conda-forge -c bioconda repeatmodeler=2.0.9
-conda activate repeatmod_env
-
-BuildDatabase -name idCulPipi1_genome_db GCA_963924435.1_idCulPipi1.1_genomic.fna
-nohup RepeatModeler -database idCulPipi1_genome_db -threads 8 -dir repeat_modled_idCulPipi1 & # change RM to repeat_modled when done runnning
-```
-
-# Install and run repeatmasker
-
-```bash
-cd ~/data
-conda create -n repeatmask_env -c conda-forge -c bioconda repeatmasker=4.2.4
-conda activate repeatmask_env
-
-nohup RepeatMasker -pa 4 -gff -xsmall -lib repeat_modled_idCulPipi1/consensi.fa -dir repeat_masked_idCulPipi1 GCA_963924435.1_idCulPipi1.1_genomic.fna &
-```
-
-# Install and run Braker
-
-```bash
-conda create -n braker4_env -c conda-forge python=3.11 apptainer snakemake=8.18.2 pandas
-conda activate braker4_env
-git clone https://github.com/Gaius-Augustus/BRAKER4
-cd ~/data/BRAKER4
-cp config.ini.example config.ini
-```
-
-Change what is in the samples.csv file using nano to:
-
-```csv
-sample_name,genome,genome_masked,protein_fasta,bam_files,fastq_r1,fastq_r2,sra_ids,varus_genus,varus_species,isoseq_bam,isoseq_fastq,busco_lineage,reference_gtf
-idCulPipi1,/home/elena/data/GCA_963924435.1_idCulPipi1.1_genomic.fna,/home/elena/data/repeat_masked_idCulPipi1/GCA_963924435.1_idCulPipi1.1_genomic.fna.masked,/home/elena/data/quinx/GCF_015732765.1_quinx_protein.faa:/home/elena/data/pallens/GCF_016801865.2_pallens_protein.faa,,,,,,,,,diptera_odb12,
-```
-
-Install the busco lineage
-
-```bash
-conda activate busco
-cd ~/data/BRAKER4
-busco --download diptera_odb12 --download_path shared_data/busco_downloads
-```
-
-Run Braker through snakemake
-
-```bash
-conda activate repeatmask_env
-cd ~/data/BRAKER4
-snakemake --cores 8 --use-singularity --singularity-prefix .singularity_cache --singularity-args "-B /home" --latency-wait 120 --restart-times 3
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Bioinformatics Workflow
 
-This file shows the computational workflow used to process illumina short read sequencing data, generate a consensus genome assembly, assess assembly quality, and annotate the genome using Liftoff.
+This file shows the computational workflow used to process illumina short read sequencing data, generate a consensus genome assembly, assess assembly quality, annotate the existing *Culex pipiens pipiens* genome using Braker4, and transfering that annotation to the consensus genome assembly.
 
 ## Assess raw Illumina read quality with FastQC
 
@@ -88,7 +20,7 @@ mkdir trimmomatic_output
 trimmomatic PE -threads 2 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz trimmomatic_output/R1_paired.fastq.gz trimmomatic_output/R1_unpaired.fastq.gz trimmomatic_output/R2_paired.fastq.gz trimmomatic_output/R2_unpaired.fastq.gz HEADCROP:20
 ```
 
- ## Asses trimmed read quality with FastQC
+## Assess trimmed read quality with FastQC
 
 ```bash
 fastqc -o fastqc_output R1_paired.fastq.gz R2_paired.fastq.gz
@@ -149,14 +81,80 @@ blobtools add --busco run_diptera_odb10/full_table.tsv my_snail_dataset
 blobtools view --view snail --plot --out ./ my_snail_dataset
 ```
 
----
-
-## Transfer an existing *Culex pipiens pallens* reference genome annotation to my consensus sequence with Liftoff
+## Install and run repeatmodeler 2
 
 ```bash
-mkdir liftoff_simple
-liftoff_simple -g GCF_016801865.2_pallens_genomic.gff -o liftoff_simple/consensus_simple_lifted_annotation.gff3 consensus_simple.fasta GCF_016801865.2_pallens_genomic.fna
+cd ~/data
+conda create -n repeatmod_env -c conda-forge -c bioconda repeatmodeler=2.0.9
+conda activate repeatmod_env
+
+BuildDatabase -name idCulPipi1_genome_db GCA_963924435.1_idCulPipi1.1_genomic.fna
+nohup RepeatModeler -database idCulPipi1_genome_db -threads 8 -dir repeat_modled_idCulPipi1 & # change RM to repeat_modled when done runnning
 ```
+
+## Install and run repeatmasker
+
+```bash
+cd ~/data
+conda create -n repeatmask_env -c conda-forge -c bioconda repeatmasker=4.2.4
+conda activate repeatmask_env
+
+nohup RepeatMasker -pa 4 -gff -xsmall -lib repeat_modled_idCulPipi1/consensi.fa -dir repeat_masked_idCulPipi1 GCA_963924435.1_idCulPipi1.1_genomic.fna &
+```
+
+## Install and run Braker
+
+```bash
+conda create -n braker4_env -c conda-forge python=3.11 apptainer snakemake=8.18.2 pandas
+conda activate braker4_env
+git clone https://github.com/Gaius-Augustus/BRAKER4
+cd ~/data/BRAKER4
+cp config.ini.example config.ini
+```
+
+Change what is in the samples.csv file using nano to:
+
+```csv
+sample_name,genome,genome_masked,protein_fasta,bam_files,fastq_r1,fastq_r2,sra_ids,varus_genus,varus_species,isoseq_bam,isoseq_fastq,busco_lineage,reference_gtf
+idCulPipi1,/home/elena/data/GCA_963924435.1_idCulPipi1.1_genomic.fna,/home/elena/data/repeat_masked_idCulPipi1/GCA_963924435.1_idCulPipi1.1_genomic.fna.masked,/home/elena/data/quinx/GCF_015732765.1_quinx_protein.faa:/home/elena/data/pallens/GCF_016801865.2_pallens_protein.faa,,,,,,,,,diptera_odb12,
+```
+
+Install the busco lineage
+
+```bash
+conda activate busco
+cd ~/data/BRAKER4
+busco --download diptera_odb12 --download_path shared_data/busco_downloads
+```
+
+Run Braker through snakemake
+
+```bash
+conda activate repeatmask_env
+cd ~/data/BRAKER4
+snakemake --cores 8 --use-singularity --singularity-prefix .singularity_cache --singularity-args "-B /home" --latency-wait 120 --restart-times 3
+```
+
+## Transfer the breaker annotation to my consensus sequence with Liftoff
+
+```bash
+cd ~/data
+mkdir liftoff_annotation
+liftoff -g ~/data/BRAKER4/output/idCulPipi1/results/braker.gff3.gz -o liftoff_annotation/consensus_simple_idCulPipi1_annotation.gff3 consensus_simple.fasta GCA_963924435.1_idCulPipi1.1_genomic.fna
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 
