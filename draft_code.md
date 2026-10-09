@@ -143,7 +143,7 @@ conda create -n eggnog_env -c conda-forge -c bioconda python=3.11
 conda activate eggnog_env
 pip install eggnog-mapper
 cd ~/data/eggnog-mapper
-nohup python download_eggnog_data.py -y &
+nohup python download_eggnog_data.py -y --data_dir ~/data/eggnog-mapper/data &
 
 nohup python emapper.py -i ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz -o idCulPipi1_eggnog --data_dir ~/data/eggnog-mapper/data --cpu 8 &
 ```
