@@ -56,6 +56,8 @@ The workflow was performed using Conda-managed environments to maintain software
 | AGAT          | 1.7.0    |
 | seqkit        | 2.13.0   |
 | genomescope   | 2.0      |
+| BRAKER4 pipeline | 0.5.0-beta |
+| eggnog - mapper  | 2.1.13     |
 
 ---
 
@@ -67,10 +69,11 @@ Software packages were installed into separate Conda environments to avoid depen
 |-------------|---------|
 | `blast_env` | BLAST+ |
 | `busco` | BUSCO genome completeness assessment |
-| `gatk_env` | GATK analysis |
 | `btk` | BlobToolKit visualization |
 | `repeatmod_env` | Run repeatmodler |
 | `repeatmask_env` | Run repeatmasker |
+| `braker4_env` | Run Braker4 |
+| `eggnog_env` | Run eggnog |
 
 
 ---
