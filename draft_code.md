@@ -148,12 +148,26 @@ nohup python download_eggnog_data.py -y --data_dir ~/data/eggnog-mapper/data &
 nohup python emapper.py -i ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz -o idCulPipi1_eggnog --data_dir ~/data/eggnog-mapper/data --cpu 8 &
 ```
 
-## Transfer the breaker annotation to my consensus sequence with Liftoff (fix this when gene prediction is done)
+## blast reference insectiside resistant gene protein files against BRAKER4 proteins fasta file
 
 ```bash
 cd ~/data
-mkdir liftoff_annotation
-liftoff -g ~/data/BRAKER4/output/idCulPipi1/results/braker.gff3.gz -o liftoff_annotation/consensus_simple_idCulPipi1_annotation.gff3 consensus_simple.fasta GCA_963924435.1_idCulPipi1.1_genomic.fna
+mkdir blast_ins_res_genes
+cd blast_ins_res_genes
+
+cat ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta  ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_ace1_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_rdl_gaba_prot.fasta > ~/data/blast_ins_res_genes/reference_proteins.faa
+
+gzip -dc ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.g
+
+makeblastdb -in braker_proteins.faa -dbtype prot -out braker_proteins_db
+
+mkdir output
+
+blastp -query reference_proteins.faa -db braker_proteins_db  -evalue 1e-10 -outfmt '6 qseqid sseqid pident length qlen slen evalue bitscore qstart qend sstart send' -out output/target_gene_hits.tsv
+
+makeblastdb -in /home/elena/data/blast_ins_res_genes/braker_proteins.faa -dbtype prot -parse_seqids -out /home/elena/data/blast_ins_res_genes/braker_proteins_db_parsed
+blastdbcmd -db /home/elena/data/blast_ins_res_genes/braker_proteins_db_parsed -dbtype prot -entry g22203.t1 -out ~/data/rdl_g22203.faa
+blastdbcmd -db /home/elena/data/blast_ins_res_genes/braker_proteins_db_parsed -dbtype prot -entry g300.t1 -out ~/data/rdl_g300.faa
 ```
 
 
@@ -165,7 +179,13 @@ liftoff -g ~/data/BRAKER4/output/idCulPipi1/results/braker.gff3.gz -o liftoff_an
 
 
 
+## Transfer the breaker annotation to my consensus sequence with Liftoff (fix this when gene prediction is done)
 
+```bash
+cd ~/data
+mkdir liftoff_annotation
+
+```
 
 
 
