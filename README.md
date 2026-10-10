@@ -58,7 +58,7 @@ The workflow used Conda-managed environments for software installation and depen
 | BUSCO             | 6.1.0       |
 | BlobToolKit       | 4.4.5       |
 | RepeatModeler     | 2.0.9       |
-| RepeatMasker      | 4.2.4*      |
+| RepeatMasker      | 4.2.4       |
 | BRAKER4 pipeline  | 0.5.0-beta  |
 | AUGUSTUS          | 3.5.0       |
 | Liftoff           | 1.5.1       |
