@@ -4,7 +4,7 @@
 
 This repository contains the computational workflow developed for my MS thesis project. The workflow process Illumina sequencing data, generate a reference-guided consensus genome, evaluates genome completeness, and perform structural and functional genome annotation.
 
-The workflow code and commands are documented in <u>code.md<u>.
+The workflow code and commands are documented in `code.md`.
 
 The workflow includes:
 
