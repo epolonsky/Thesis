@@ -48,39 +48,47 @@ The workflow used Conda-managed environments for software installation and depen
 | Conda             | 26.3.2      |
 | FastQC            | 0.12.1      |
 | Trimmomatic       | 0.40        |
-| Bowtie2           | 2.5.5       |
+| Bowtie2           | 2.5.4       |
 | SAMtools          | 1.19.2      |
 | BLAST+            | 2.17.0      |
+| Biopython         | 1.87        |
 | Seqtk             | 1.5-r133    |
 | seqkit            | 2.13.0      |
+| gffread           | 0.12.7      |
 | Jellyfish         | 2.2.10      |
 | GenomeScope       | 2.0         |
 | BUSCO             | 6.1.0       |
 | BlobToolKit       | 4.4.5       |
 | RepeatModeler     | 2.0.9       |
-| RepeatMasker      | 4.2.4       |
+| RepeatMasker      | 4.2.3       |
 | BRAKER4 pipeline  | 0.5.0-beta  |
 | AUGUSTUS          | 3.5.0       |
-| Liftoff           | 1.5.1       |
-| AGAT              | 1.7.0       |
+| Liftoff           | 1.5.2       |
 | eggNOG-mapper     | 2.1.13      |
 
 Additional Pipeline Dependencies
 
 Some tools invoke other software internally. Important versions recorded by the BRAKER4 run or reported by eggNOG-mapper include:
 
-| Software       | Version             | Associated workflow |
-| -------------- | ------------------- | ------------------- |
-| DIAMOND        | 2.0.15              | BRAKER4             |
-| DIAMOND        | 2.2.8               | eggNOG-mapper       |
-| ProtHint       | 2.6.0               | BRAKER4             |
-| miniprot       | 0.12-r237           | BRAKER4             |
-| Spaln          | 2.3.3f              | BRAKER4             |
-| TSEBRA         | Commit `23ef205`    | BRAKER4             |
-| GeneMark-EP+   | 4.*; commit `aacc025` | BRAKER4           |
-| GeneMark-ES    | 4.*; commit `aacc025` | BRAKER4           |
-| compleasm      | 0.2.8               | BRAKER4             |
-| MMseqs2        | 18.8cc5c            | eggNOG-mapper       |
+| Software       | Version                | Associated workflow |
+| -------------- | ---------------------- | ------------------- |
+| DIAMOND        | 2.0.15                 | BRAKER4             |
+| DIAMOND        | 2.2.8                  | eggNOG-mapper       |
+| ProtHint       | 2.6.0                  | BRAKER4             |
+| miniprot       | 0.12-r237              | BRAKER4             |
+| Spaln          | 2.3.3f                 | BRAKER4             |
+| TSEBRA         | Commit `23ef205`       | BRAKER4             |
+| GeneMark-EP+   | 4.*; commit `aacc025`  | BRAKER4             |
+| GeneMark-ES    | 4.*; commit `aacc025`  | BRAKER4             |
+| compleasm      | 0.2.8                  | BRAKER4             |
+| MMseqs2        | 18.8cc5c               | eggNOG-mapper       |
+| Apptainer      | 1.5.4                  | BRAKER4 container execution |
+| Snakemake      | 8.18.2                 | BRAKER4 environment |
+| Snakemake      | 7.19.1                 | BlobToolKit environment |
+| RMBlast        | 2.14.1+                | RepeatMasker|
+| AGAT           | 1.4.1                  | BRAKER4 dependency |
+| AUGUSTUS       | 3.5.0                  | BRAKER4|
+| BUSCO          | 6.1.0                  | Genome completeness assessment; BRAKER4 dependency |
 
 ---
 
