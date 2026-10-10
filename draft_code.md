@@ -1,6 +1,6 @@
 # Bioinformatics Workflow
 
-This file shows the computational workflow used to process illumina short read sequencing data, generate a consensus genome assembly, assess assembly quality, annotate the existing *Culex pipiens pipiens* genome using Braker4, and transfering that annotation to the consensus genome assembly.
+This file shows the computational workflow used to process illumina short read sequencing data, generate a consensus genome assembly, assess assembly quality, annotate the existing *Culex pipiens pipiens* genome using BRAKER4 and eggNOG, and transfering that annotation to the consensus genome assembly.
 
 ## Assess raw Illumina read quality with FastQC
 
@@ -23,7 +23,7 @@ trimmomatic PE -threads 2 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.g
 ## Assess trimmed read quality with FastQC
 
 ```bash
-fastqc -o fastqc_output R1_paired.fastq.gz R2_paired.fastq.gz
+fastqc -o fastqc_output trimmomatic_output/R1_paired.fastq.gz trimmomatic_output/R2_paired.fastq.gz
 ```
 
 ## Map reads to the Culex pipiens reference genome with Bowtie2
@@ -46,8 +46,10 @@ bowtie2 -x bowtie2_index/ref_genome_index -1 trimmomatic_output/R1_paired.fastq.
 ## Convert aligned SAM files to sorted and indexed BAM with Samtools
 
 ```bash
-samtools view -bS bowtie2_output/aligned.sam -o aligned.bam
+samtools view -bS bowtie2_output/aligned.sam -o bowtie2_output/aligned.bam
+
 samtools sort bowtie2_output/aligned.bam -o bowtie2_output/aligned_sorted.bam
+
 samtools index bowtie2_output/aligned_sorted.bam
 ```
 
@@ -66,13 +68,17 @@ samtools consensus -m simple --min-depth 1 --call-fract 0.5 bowtie2_output/align
 ## Evaluate genome completeness with BUSCO
 
 ```bash
-busco -i consensus_simple.fasta -l diptera_odb10 -o busco_out -m genome 
+conda activate busco
+mkdir busco_simple_out
+busco -i consensus_simple.fasta -l diptera_odb10 -o busco_simple_out -m genome 
 ```
 
 ##  Generate snailplot from BUSCO results with BlobToolKit
 
 ```bash
 cd busco_simple_out
+
+conda activate btk
 
 blobtools create --fasta ~/data/consensus_simple.fasta my_snail_dataset
 
@@ -130,7 +136,7 @@ busco --download diptera_odb12 --download_path shared_data/busco_downloads
 Run Braker through snakemake
 
 ```bash
-conda activate repeatmask_env
+conda activate braker4_env
 cd ~/data/BRAKER4
 nohup snakemake --cores 8 --use-singularity --singularity-prefix .singularity_cache --singularity-args "-B /home" --latency-wait 120 --restart-times 3 &
 ```
@@ -138,7 +144,8 @@ nohup snakemake --cores 8 --use-singularity --singularity-prefix .singularity_ca
 ## Install and run eggNOG mapper for functional annotation
 
 ```bash
-https://github.com/eggnogdb/eggnog-mapper
+cd ~/data
+git clone https://github.com/eggnogdb/eggnog-mapper
 conda create -n eggnog_env -c conda-forge -c bioconda python=3.11
 conda activate eggnog_env
 pip install eggnog-mapper
@@ -157,7 +164,7 @@ cd blast_ins_res_genes
 
 cat ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta  ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_ace1_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_rdl_gaba_prot.fasta > ~/data/blast_ins_res_genes/reference_proteins.faa
 
-gzip -dc ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.g
+gzip -dc ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz
 
 makeblastdb -in braker_proteins.faa -dbtype prot -out braker_proteins_db
 
@@ -316,6 +323,18 @@ cat quinx_pallens_genes/quinx_pallens_prot/quinx_rdl_gaba_prot.fasta pipiens_ins
 
 cat quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta pipiens_ins_res_genes/pipiens_prot/pipiens_sodium_channel_prot.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_sodium_channel_prot.fasta
 ```
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Annotation statistics
 
