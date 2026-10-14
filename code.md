@@ -177,6 +177,14 @@ blastdbcmd -db /home/elena/data/blast_ins_res_genes/braker_proteins_db_parsed -d
 blastdbcmd -db /home/elena/data/blast_ins_res_genes/braker_proteins_db_parsed -dbtype prot -entry g300.t1 -out ~/data/rdl_g300.faa
 ```
 
+-
+-
+-
+-
+-
+-
+
+
 # Code Draft Section
 ---
 
