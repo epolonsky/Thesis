@@ -171,10 +171,6 @@ makeblastdb -in braker_proteins.faa -dbtype prot -out braker_proteins_db
 mkdir output
 
 blastp -query reference_proteins.faa -db braker_proteins_db  -evalue 1e-10 -outfmt '6 qseqid sseqid pident length qlen slen evalue bitscore qstart qend sstart send' -out output/target_gene_hits.tsv
-
-makeblastdb -in /home/elena/data/blast_ins_res_genes/braker_proteins.faa -dbtype prot -parse_seqids -out /home/elena/data/blast_ins_res_genes/braker_proteins_db_parsed
-blastdbcmd -db /home/elena/data/blast_ins_res_genes/braker_proteins_db_parsed -dbtype prot -entry g22203.t1 -out ~/data/rdl_g22203.faa
-blastdbcmd -db /home/elena/data/blast_ins_res_genes/braker_proteins_db_parsed -dbtype prot -entry g300.t1 -out ~/data/rdl_g300.faa
 ```
 
 -
