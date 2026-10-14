@@ -1,17 +1,15 @@
 # Bioinformatics Workflow
 
-This file shows the computational workflow used to process illumina short read sequencing data, generate a consensus genome assembly, assess assembly quality, and annotate the genome using Liftoff.
+This file shows the computational workflow used to process illumina short read sequencing data, generate a consensus genome assembly, assess assembly quality, annotate the existing *Culex pipiens pipiens* genome using BRAKER4 and eggNOG, and transfering that annotation to the consensus genome assembly.
 
-## Quality assessment of raw sequencing reads
-
-Assess raw Illumina read quality using FastQC.
+## Assess raw Illumina read quality with FastQC
 
 ```bash
 mkdir fastqc_output
 fastqc -o fastqc_output F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz
 ```
 
-## Trim sequencing reads
+## Trim sequencing reads with Trimmomatic
 
 Trim the first 20 bp from each read to remove the barcode sequence.
 
@@ -22,20 +20,18 @@ mkdir trimmomatic_output
 trimmomatic PE -threads 2 -Xms1024m -Xmx8g -phred33 F7_PP_DNA_S15_R1_001.fastq.gz F7_PP_DNA_S15_R2_001.fastq.gz trimmomatic_output/R1_paired.fastq.gz trimmomatic_output/R1_unpaired.fastq.gz trimmomatic_output/R2_paired.fastq.gz trimmomatic_output/R2_unpaired.fastq.gz HEADCROP:20
 ```
 
- ## Quality assessment after trimming
+## Assess trimmed read quality with FastQC
 
 ```bash
-fastqc -o fastqc_output R1_paired.fastq.gz R2_paired.fastq.gz
+fastqc -o fastqc_output trimmomatic_output/R1_paired.fastq.gz trimmomatic_output/R2_paired.fastq.gz
 ```
 
-## Map reads to the Culex pipiens reference genome
+## Map reads to the Culex pipiens reference genome with Bowtie2
 
 Reads were mapped against the NCBI chromosome-level assembly:
 
 *Culex pipiens* idCulPipi1.1  
 Accession: GCA_963924435.1
-
-Build a Bowtie2 index and align paired-end reads to the reference genome.
 
 ```bash
 mkdir bowtie2_index
@@ -47,40 +43,42 @@ mkdir -p bowtie2_output
 bowtie2 -x bowtie2_index/ref_genome_index -1 trimmomatic_output/R1_paired.fastq.gz -2 trimmomatic_output/R2_paired.fastq.gz --un-conc-gz bowtie2_output/unmapped_reads -S bowtie2_output/aligned.sam -p 4 > bowtie2_output/bowtie2.log 2>&1
 ```
 
-## Convert aligned SAM files to sorted and indexed BAM
+## Convert aligned SAM files to sorted and indexed BAM with Samtools
 
 ```bash
-samtools view -bS bowtie2_output/aligned.sam -o aligned.bam
+samtools view -bS bowtie2_output/aligned.sam -o bowtie2_output/aligned.bam
+
 samtools sort bowtie2_output/aligned.bam -o bowtie2_output/aligned_sorted.bam
+
 samtools index bowtie2_output/aligned_sorted.bam
 ```
 
-## Calculate sequencing coverage
+## Calculate sequencing coverage with Samtools
 
 ```bash
 samtools coverage bowtie2_output/aligned_sorted.bam > aligned_sorted_coverage_output.txt
 ```
 
-## Generate a reference-guided consensus genome 
-
-Generate a reference-guided consensus sequence from reads aligned to the reference genome.
+## Generate a reference-guided consensus genome from reads aligned to the reference genome with Samtools consensus
 
 ```bash
 samtools consensus -m simple --min-depth 1 --call-fract 0.5 bowtie2_output/aligned_sorted.bam > consensus_simple.fasta
 ```
 
-## Assess assembly completeness
-
-Evaluate genome completeness using BUSCO.
+## Evaluate genome completeness with BUSCO
 
 ```bash
-busco -i consensus_simple.fasta -l diptera_odb10 -o busco_out -m genome 
+conda activate busco
+mkdir busco_simple_out
+busco -i consensus_simple.fasta -l diptera_odb10 -o busco_simple_out -m genome 
 ```
 
-##  Generate BlobToolKit assembly quality visualization snailplot using BUSCO results
+##  Generate snailplot from BUSCO results with BlobToolKit
 
 ```bash
 cd busco_simple_out
+
+conda activate btk
 
 blobtools create --fasta ~/data/consensus_simple.fasta my_snail_dataset
 
@@ -89,15 +87,105 @@ blobtools add --busco run_diptera_odb10/full_table.tsv my_snail_dataset
 blobtools view --view snail --plot --out ./ my_snail_dataset
 ```
 
----
-
-## Generate an annotation using Liftoff
-
-Liftoff is used to project existing annotations from the *Culex pipiens pallens* reference genome assembly onto the `consensus.fasta` genome assembly. The resulting GFF3 annotation file contains the transferred positions of genes and other genomic features mapped onto the consensus assembly.
+## Install and run repeatmodeler 2
 
 ```bash
-mkdir liftoff_simple
-liftoff_simple -g GCF_016801865.2_pallens_genomic.gff -o liftoff_simple/consensus_simple_lifted_annotation.gff3 consensus_simple.fasta GCF_016801865.2_pallens_genomic.fna
+cd ~/data
+conda create -n repeatmod_env -c conda-forge -c bioconda repeatmodeler=2.0.9
+conda activate repeatmod_env
+
+BuildDatabase -name idCulPipi1_genome_db GCA_963924435.1_idCulPipi1.1_genomic.fna
+nohup RepeatModeler -database idCulPipi1_genome_db -threads 8 -dir repeat_modled_idCulPipi1 & 
+```
+
+## Install and run repeatmasker
+
+```bash
+cd ~/data
+conda create -n repeatmask_env -c conda-forge -c bioconda repeatmasker=4.2.4
+conda activate repeatmask_env
+
+nohup RepeatMasker -pa 4 -gff -xsmall -lib repeat_modled_idCulPipi1/consensi.fa -dir repeat_masked_idCulPipi1 GCA_963924435.1_idCulPipi1.1_genomic.fna &
+```
+
+## Install and run Braker for gene prediction
+
+```bash
+conda create -n braker4_env -c conda-forge python=3.11 apptainer snakemake=8.18.2 pandas
+conda activate braker4_env
+git clone https://github.com/Gaius-Augustus/BRAKER4
+cd ~/data/BRAKER4
+cp config.ini.example config.ini
+```
+
+Change what is in the samples.csv file using nano to:
+
+```csv
+sample_name,genome,genome_masked,protein_fasta,bam_files,fastq_r1,fastq_r2,sra_ids,varus_genus,varus_species,isoseq_bam,isoseq_fastq,busco_lineage,reference_gtf
+idCulPipi1,/home/elena/data/GCA_963924435.1_idCulPipi1.1_genomic.fna,/home/elena/data/repeat_masked_idCulPipi1/GCA_963924435.1_idCulPipi1.1_genomic.fna.masked,/home/elena/data/quinx/GCF_015732765.1_quinx_protein.faa:/home/elena/data/pallens/GCF_016801865.2_pallens_protein.faa,,,,,,,,,diptera_odb12,
+```
+
+Install the busco lineage
+
+```bash
+conda activate busco
+cd ~/data/BRAKER4
+busco --download diptera_odb12 --download_path shared_data/busco_downloads
+```
+
+Run Braker through snakemake
+
+```bash
+conda activate braker4_env
+cd ~/data/BRAKER4
+nohup snakemake --cores 8 --use-singularity --singularity-prefix .singularity_cache --singularity-args "-B /home" --latency-wait 120 --restart-times 3 &
+```
+
+## Install and run eggNOG mapper for functional annotation
+
+```bash
+cd ~/data
+git clone https://github.com/eggnogdb/eggnog-mapper
+conda create -n eggnog_env -c conda-forge -c bioconda python=3.11
+conda activate eggnog_env
+pip install eggnog-mapper
+cd ~/data/eggnog-mapper
+nohup python download_eggnog_data.py -y --data_dir ~/data/eggnog-mapper/data &
+
+nohup python emapper.py -i ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz -o idCulPipi1_eggnog --data_dir ~/data/eggnog-mapper/data --cpu 8 &
+```
+
+## blast reference insectiside resistant gene protein files against BRAKER4 proteins fasta file
+
+```bash
+cd ~/data
+mkdir blast_ins_res_genes
+cd blast_ins_res_genes
+
+cat ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta  ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_ace1_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_rdl_gaba_prot.fasta > ~/data/blast_ins_res_genes/reference_proteins.faa
+
+gzip -dc ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz
+
+makeblastdb -in braker_proteins.faa -dbtype prot -out braker_proteins_db
+
+mkdir output
+
+blastp -query reference_proteins.faa -db braker_proteins_db  -evalue 1e-10 -outfmt '6 qseqid sseqid pident length qlen slen evalue bitscore qstart qend sstart send' -out output/target_gene_hits.tsv
+
+makeblastdb -in /home/elena/data/blast_ins_res_genes/braker_proteins.faa -dbtype prot -parse_seqids -out /home/elena/data/blast_ins_res_genes/braker_proteins_db_parsed
+blastdbcmd -db /home/elena/data/blast_ins_res_genes/braker_proteins_db_parsed -dbtype prot -entry g22203.t1 -out ~/data/rdl_g22203.faa
+blastdbcmd -db /home/elena/data/blast_ins_res_genes/braker_proteins_db_parsed -dbtype prot -entry g300.t1 -out ~/data/rdl_g300.faa
+```
+
+# Code Draft Section
+---
+
+## Transfer the breaker annotation to my consensus sequence with Liftoff (fix this when gene prediction is done)
+
+```bash
+cd ~/data
+mkdir liftoff_annotation
+
 ```
 
 ---
@@ -108,15 +196,13 @@ The CDS of the genes for *Culex pipiens pallens* and *Culex quinquefasciatus* we
 
 For *Culex pipiens pipiens* the genes were found by using the gene id locus of the pallens gene and extracting it from the annotation.
 
-## Extract CDS sequences from the Liftoff annotation
-
-The CDS sequences from the Liftoff transferred annotation were extracted from the consensus_simple.fasta assembly using gffread. This produces a FASTA file containing the coding sequences (CDS) corresponding to the transferred gene annotations.
+## Extract CDS sequences from the Liftoff annotation with gffread
 
 ```bash
 gffread liftoff_simple/consensus_simple_lifted_annotation.gff3 -g consensus_simple.fasta -x liftoff_simple/consensus_simple_CDS.fasta
 ```
 
-## Identify and extract genes of interest
+## Identify and extract genes of interest with Samtools
 
 Three insecticide resistance-associated genes were selected for comparison.
 
@@ -138,7 +224,7 @@ samtools faidx consensus_simple.fasta OZ004312.1:191453602-191579832 > pipiens_i
 samtools faidx consensus_simple.fasta OZ004313.1:172172965-172310683 > pipiens_ins_res_genes/pipiens_rdlbagaba.fasta
 ```
 
-## Extract the CDS sequences for each gene
+## Extract the CDS sequences for each gene with seqkit
 
 seqkit grep was used to select the specific transcript accession for each insecticide resistance-associated gene.
 
@@ -154,7 +240,7 @@ seqkit grep -p 'rna-XM_039573482.2' liftoff_simple/consensus_simple_CDS.fasta > 
 
 These files contain the selected Culex pipiens pipiens CDS sequences for the three genes used in downstream comparisons.
 
-## Create pairwise multi-FASTA files
+## Create pairwise multi-FASTA files for the gene DNA sequences
 
 To compare the insecticide resistance-associated genes between species, the Culex pipiens pipiens CDS sequences were combined with the corresponding CDS sequences from Culex pipiens pallens and Culex quinquefasciatus.
 
@@ -185,9 +271,7 @@ cat quinx_pallens_genes/quinx_pallens_cds/quinx_rdl_gaba_cds.fasta pipiens_ins_r
 cat quinx_pallens_genes/quinx_pallens_cds/quinx_sodium_channel_cds.fasta pipiens_ins_res_genes/pipiens_cds/pipiens_sodium_channel_cds.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_sodium_channel.fasta
 ```
 
-## Translate extracted CDS sequences from *C. p. pipiens* to their respective amino acid sequence
-
-biopython was used to translate the extracted CDS sequences.
+## Translate extracted CDS sequences from *C. p. pipiens* to their respective amino acid sequence using biopython
 
 ```bash
 cd pipiens_ins_res_genes
@@ -236,8 +320,6 @@ cat quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta pipie
 
 ## Generate annotation stats with AGAT
 
-Annotation statistics were generated from the Liftoff-generated GFF3 annotation using AGAT:
-
 ```bash
 agat_sp_statistics.pl --gff consensus_simple_lifted_annotation.gff3 -o liftoff_simple/liftoff_simple_annotation_gff_statistics.txt
 ```
@@ -266,34 +348,21 @@ The following annotation statistics were obtained from the AGAT output:
 | Total CDS length (bp) | `Total cds length (bp)` |
 | Total intron length (bp) | `Total intron length per cds (bp)` |
 
-## Generate predicted protein sequences
 
-Protein sequences were extracted from the Liftoff annotation using gffread:
-
-```bash
-gffread consensus_simple_lifted_annotation.gff3 -g consensus_simple.fasta -y consensus_simple_proteins.fasta
-```
-
-## Number of predicted protein sequences
-
-The number of predicted protein sequences was calculated by counting protein FASTA records:
+## Calculate the number of predicted protein sequences
 
 ```bash
-grep -c "^>" proteins.fa
+grep -c "^>" liftoff_simple/consensus_simple_CDS.fasta
 ```
 
-## Mean protein length (aa)
-
-Mean protein length was calculated from the extracted protein FASTA file:
+## Calculate the mean protein length (aa)
 
 ```bash
 seqkit fx2tab -nl consensus_simple_proteins.fasta | \
 awk '{sum+=length($2); n++} END {print sum/n}'
 ```
 
-## Genome size
-
-Genome assembly size was calculated from the genome FASTA:
+## Calculate the genome assembly size
 
 ```bash
 seqkit stats simple_consensus.fasta
@@ -324,7 +393,7 @@ Total intron length (Total intron length per cds (bp)) / genome size
 
 # Genome Survey Analysis
 
-##  K-mer counting using Jellyfish
+## Get the K-mer counts with Jellyfish
 
 Genome characteristics were estimated from trimmed Illumina reads using a k-mer based approach.  
 21-mer frequencies were generated using Jellyfish with canonical k-mers (`-C`). The k-mer size was selected as **k=21**, which is commonly used for short-read genome size estimation.
@@ -336,17 +405,13 @@ mkdir jellyfish_output
 jellyfish count -C -m 21 -s 500M -t 20 -o jellyfish_output/F7_k21_trimmed.jf <(zcat R1_paired.fastq.gz) <(zcat R2_paired.fastq.gz) > jellyfish_output/jellyfish.log 2>&1 
 ```
 
-## Generate k-mer histogram
-
-The Jellyfish k-mer database was converted into a k-mer frequency histogram for downstream genome profiling.
+## Generate a k-mer histogram with Jellyfish
 
 ```bash
 jellyfish histo -t 20 jellyfish_output/F7_k21_trimmed.jf > jellyfish_output/F7_k21_trimmed.histo
 ```
 
-## GenomeScope 2.0 genome survey analysis (online web version)
-
-GenomeScope 2.0 was used to estimate genome characteristics from the k-mer frequency distribution.
+## Use GenomeScope 2.0 to complete a genome survey analysis (online web version)
 
 The analysis was performed using a diploid model (`p=2`) with the following parameters:
 
