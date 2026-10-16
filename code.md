@@ -187,6 +187,14 @@ mkdir output
 blastp -query reference_proteins.faa -db braker_proteins_db  -evalue 1e-10 -outfmt '6 qseqid sseqid pident length qlen slen evalue bitscore qstart qend sstart send' -out output/target_gene_hits.tsv
 ```
 
+## Transfer the breaker annotation to my consensus sequence with Liftoff (fix this when gene prediction is done)
+
+```bash
+cd ~/data
+mkdir liftoff_annotation
+liftoff -g eggnog-mapper/idCulPipi1_decorated.emapper.decorated.gff -o liftoff_annotation/consesnus_simple_idCulPipi1_lifted_annotation.gff3 consensus_simple.fasta GCA_963924435.1_idCulPipi1.1_genomic.fna 
+```
+
 -
 -
 -
@@ -197,14 +205,6 @@ blastp -query reference_proteins.faa -db braker_proteins_db  -evalue 1e-10 -outf
 
 # Code Draft Section
 ---
-
-## Transfer the breaker annotation to my consensus sequence with Liftoff (fix this when gene prediction is done)
-
-```bash
-cd ~/data
-mkdir liftoff_annotation
-
-```
 
 ---
 
