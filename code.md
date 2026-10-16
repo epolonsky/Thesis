@@ -155,6 +155,20 @@ nohup python download_eggnog_data.py -y --data_dir ~/data/eggnog-mapper/data &
 nohup python emapper.py -i ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz -o idCulPipi1_eggnog --data_dir ~/data/eggnog-mapper/data --cpu 8 &
 ```
 
+## Combine the gene prediction and functional annotation outputs into one annotation file with eggNOG decorate gff
+
+```bash
+conda activate eggnog_env
+cd ~/data/eggnog-mapper
+
+gzip -dc ~/data/BRAKER4/output/idCulPipi1/results/braker.gff3.gz > ~/data/BRAKER4/output/idCulPipi1/results/braker.gff3
+gzip -dc ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz > ~/data/BRAKER4/output/idCulPipi1/results/braker.aa
+
+sed -i 's/all_orthologies, annot_orthologs) = annotation/all_orthologies, annot_orthologs, _confidence) = annotation/' eggnogmapper/deco/decoration.py
+
+nohup python emapper.py -i ~/data/BRAKER4/output/idCulPipi1/results/braker.aa --itype proteins -m no_search --annotate_hits_table idCulPipi1_eggnog.emapper.seed_orthologs --decorate_gff ~/data/BRAKER4/output/idCulPipi1/results/braker.gff3 -o idCulPipi1_decorated --data_dir ~/data/eggnog-mapper/data --cpu 8 &
+```
+
 ## blast reference insectiside resistant gene protein files against BRAKER4 proteins fasta file
 
 ```bash
