@@ -178,7 +178,7 @@ cd blast_ins_res_genes
 
 cat ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta  ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_ace1_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_rdl_gaba_prot.fasta > ~/data/blast_ins_res_genes/reference_proteins.faa
 
-gzip -dc ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz
+gzip -dc ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz > braker_proteins.faa
 
 makeblastdb -in braker_proteins.faa -dbtype prot -out braker_proteins_db
 
@@ -193,6 +193,55 @@ blastp -query reference_proteins.faa -db braker_proteins_db  -evalue 1e-10 -outf
 cd ~/data
 mkdir liftoff_annotation
 liftoff -g eggnog-mapper/idCulPipi1_decorated.emapper.decorated.gff -o liftoff_annotation/consesnus_simple_idCulPipi1_lifted_annotation.gff3 consensus_simple.fasta GCA_963924435.1_idCulPipi1.1_genomic.fna 
+```
+# Insecticide resistant gene extraction
+
+The gene sequences along with their CDS and protein sequences for *Culex pipiens pallens* and *Culex quinquefasciatus* were downloaded from NCBI using accession numbers found through literature search.
+
+For *Culex pipiens pipiens* the BRAKER4 protein id was used to extract the protein sequences from the liftoff annotation.
+
+```bash
+cd ~/data
+mkdir pipiens_ins_res_genes_idCulPipi1_lifted
+mkdir pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot
+mkdir pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds
+
+gffread liftoff_annotation/consesnus_simple_idCulPipi1_lifted_annotation.gff3 -g consensus_simple.fasta -y liftoff_annotation/consensus_simple_proteins_idCulPipi1.faa -x liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta
+```
+```bash
+# VGSC: g13896.t4
+
+seqkit grep -p 'g13896.t4' liftoff_annotation/consensus_simple_proteins_idCulPipi1.faa > pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_sodium_channel_prot.fasta
+
+# RDL: g14276.t1
+seqkit grep -p 'g14276.t1' liftoff_annotation/consensus_simple_proteins_idCulPipi1.faa >  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_rdl_gaba_prot.fasta
+
+# ACE1: g17576.t1
+seqkit grep -p 'g17576.t1' liftoff_annotation/consensus_simple_proteins_idCulPipi1.faa >  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_ace1_prot.fasta
+```
+
+```bash
+# VGSC CDS: g13896.t4
+seqkit grep -p 'g13896.t4' liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta  > pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_sodium_channel_cds.fasta
+
+# RDL CDS: g14276.t1
+seqkit grep -p 'g14276.t1' liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta  >  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_rdl_gaba_cds.fasta
+
+# ACE1 CDS: g17576.t1
+seqkit grep -p 'g17576.t1' liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta  >  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_ace1_cds.fasta
+```
+
+## Download reference sequences from NCBI with known mutation and make files for alignment
+
+```bash
+mkdir ref_mutation
+mkdir mkdir ref_mutation/files_for_aligment
+
+cat ref_mutation/quinx_ace1_mut_ref.fasta pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_ace1_prot.fasta > ref_mutation/files_for_aligment/quinx_pipiens_ace1_alignment_input.fasta
+
+cat ref_mutation/quinx_rdl_mut_ref.fasta pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_rdl_gaba_prot.fasta > ref_mutation/files_for_aligment/quinx_pipiens_rdl_gaba_alignment_input.fasta
+
+cat ref_mutation/quinx_sodium_channel_mut_ref.fasta pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_sodium_channel_prot.fasta > ref_mutation/files_for_aligment/quinx_pipiens_sodium_channel_alignment_input.fasta
 ```
 
 -
