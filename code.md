@@ -176,7 +176,7 @@ cd ~/data
 mkdir blast_ins_res_genes
 cd blast_ins_res_genes
 
-cat ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta  ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_ace1_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_rdl_gaba_prot.fasta > ~/data/blast_ins_res_genes/reference_proteins.faa
+cat ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_ace1_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_rdl_gaba_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/pallens_sodium_channel_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/pallens_ace1_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/pallens_rdl_gaba_prot.fasta > ~/data/blast_ins_res_genes/reference_proteins.faa
 
 gzip -dc ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz > braker_proteins.faa
 
@@ -242,6 +242,8 @@ cat ref_mutation/quinx_ace1_mut_ref.fasta pipiens_ins_res_genes_idCulPipi1_lifte
 cat ref_mutation/quinx_rdl_mut_ref.fasta pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_rdl_gaba_prot.fasta > ref_mutation/files_for_aligment/quinx_pipiens_rdl_gaba_alignment_input.fasta
 
 cat ref_mutation/quinx_sodium_channel_mut_ref.fasta pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_sodium_channel_prot.fasta > ref_mutation/files_for_aligment/quinx_pipiens_sodium_channel_alignment_input.fasta
+
+cat ref_mutation/quinx_rdl_mut_nucleotide.fasta  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_rdl_gaba_cds.fasta > ref_mutation/files_for_aligment/quinx_pipiens_rdl_gaba_nucleotide_alignment_input.fasta
 ```
 
 -
