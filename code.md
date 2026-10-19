@@ -213,8 +213,8 @@ gffread liftoff_annotation/consesnus_simple_idCulPipi1_lifted_annotation.gff3 -g
 
 seqkit grep -p 'g13896.t4' liftoff_annotation/consensus_simple_proteins_idCulPipi1.faa > pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_sodium_channel_prot.fasta
 
-# RDL: g14276.t1
-seqkit grep -p 'g14276.t1' liftoff_annotation/consensus_simple_proteins_idCulPipi1.faa >  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_rdl_gaba_prot.fasta
+# RDL: g22203.t1 
+seqkit grep -p 'g22203.t1' liftoff_annotation/consensus_simple_proteins_idCulPipi1.faa >  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_rdl_gaba_prot.fasta
 
 # ACE1: g17576.t1
 seqkit grep -p 'g17576.t1' liftoff_annotation/consensus_simple_proteins_idCulPipi1.faa >  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_ace1_prot.fasta
@@ -222,13 +222,13 @@ seqkit grep -p 'g17576.t1' liftoff_annotation/consensus_simple_proteins_idCulPip
 
 ```bash
 # VGSC CDS: g13896.t4
-seqkit grep -p 'g13896.t4' liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta  > pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_sodium_channel_cds.fasta
+seqkit grep -p 'g13896.t4' liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta > pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_sodium_channel_cds.fasta
 
-# RDL CDS: g14276.t1
-seqkit grep -p 'g14276.t1' liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta  >  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_rdl_gaba_cds.fasta
+# RDL CDS: g22203.t1 
+seqkit grep -p 'g22203.t1'  liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta > pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_rdl_gaba_cds.fasta
 
 # ACE1 CDS: g17576.t1
-seqkit grep -p 'g17576.t1' liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta  >  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_ace1_cds.fasta
+seqkit grep -p 'g17576.t1' liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta >  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_ace1_cds.fasta
 ```
 
 ## Download reference sequences from NCBI with known mutation and make files for alignment
