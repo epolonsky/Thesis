@@ -187,7 +187,7 @@ mkdir output
 blastp -query reference_proteins.faa -db braker_proteins_db  -evalue 1e-10 -outfmt '6 qseqid sseqid pident length qlen slen evalue bitscore qstart qend sstart send' -out output/target_gene_hits.tsv
 ```
 
-## Transfer the breaker annotation to my consensus sequence with Liftoff (fix this when gene prediction is done)
+## Transfer the breaker annotation to my consensus sequence with Liftoff 
 
 ```bash
 cd ~/data
