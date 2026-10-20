@@ -201,6 +201,9 @@ makeblastdb -in ~/data/consensus_simple.fasta -dbtype nucl -out consensus_simple
 mkdir output
 
 blastn -query reference_rdl_cds.fasta -db consensus_simple_db -evalue 1e-10 -outfmt '6 qseqid sseqid pident length qlen slen evalue bitscore qstart qend sstart send' -out output/rdl_gene_hits.tsv
+
+# sort results in order of overlapping fragments to connect hits to get full rdl gene
+awk '$1 ~ /XM_038263969/ {print}' output/rdl_gene_hits.tsv | sort -k9,9n
 ```
 
 ## Transfer the breaker annotation to my consensus sequence with Liftoff 
