@@ -206,12 +206,44 @@ blastn -query reference_rdl_cds.fasta -db consensus_simple_db -evalue 1e-10 -out
 awk '$1 ~ /XM_038263969/ {print}' output/rdl_gene_hits.tsv | sort -k9,9n
 ```
 
+## Extract the sequence for rdl from the BLAST results
+
+```bash
+samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172174780-172303616' > output/rdl_genomic_region.fasta
+```
+
+## Find where the rdl gene is in the consensus sequence with Exonerate
+
+```bash
+cd ~/data/blast_rdl_to_consensus_simple
+
+exonerate --model coding2genome --showalignment yes --showvulgar yes --showtargetgff yes --showsugar no reference_rdl_cds.fasta output/rdl_genomic_region.fasta > output/rdl_exonerate_results.txt
+```
+
+```bash
+{
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172174780-172174904'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172226606-172226703'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172233935-172234002'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172255260-172255486'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172257954-172258036'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172278616-172278753'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172295112-172295396'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172298418-172298908'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172303452-172303616'
+} | awk '
+BEGIN {print ">RDL_consensus_CDS"}
+!/^>/ {printf "%s", $0}
+END {printf "\n"}
+' > output/rdl_consensus_cds.fasta
+```
+
 ## Transfer the breaker annotation to my consensus sequence with Liftoff 
 
 ```bash
 cd ~/data
 mkdir liftoff_annotation
-liftoff -g eggnog-mapper/idCulPipi1_decorated.emapper.decorated.gff -o liftoff_annotation/consesnus_simple_idCulPipi1_lifted_annotation.gff3 consensus_simple.fasta GCA_963924435.1_idCulPipi1.1_genomic.fna 
+liftoff -g eggnog-mapper/idCulPipi1_decorated.emapper.decorated.gff -o liftoff_annotation/consensus_simple_idCulPipi1_lifted_annotation.gff3 consensus_simple.fasta GCA_963924435.1_idCulPipi1.1_genomic.fna 
 ```
 # Insecticide resistant gene extraction
 
@@ -225,7 +257,7 @@ mkdir pipiens_ins_res_genes_idCulPipi1_lifted
 mkdir pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot
 mkdir pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds
 
-gffread liftoff_annotation/consesnus_simple_idCulPipi1_lifted_annotation.gff3 -g consensus_simple.fasta -y liftoff_annotation/consensus_simple_proteins_idCulPipi1.faa -x liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta
+gffread liftoff_annotation/consensus_simple_idCulPipi1_lifted_annotation.gff3 -g consensus_simple.fasta -y liftoff_annotation/consensus_simple_proteins_idCulPipi1.faa -x liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta
 ```
 ```bash
 # VGSC: g13896.t4
