@@ -169,7 +169,7 @@ sed -i 's/all_orthologies, annot_orthologs, _confidence) = annotation/all_orthol
 nohup python emapper.py -i ~/data/BRAKER4/output/idCulPipi1/results/braker.aa --itype proteins -m no_search --annotate_hits_table idCulPipi1_eggnog.emapper.seed_orthologs --decorate_gff ~/data/BRAKER4/output/idCulPipi1/results/braker.gff3 -o idCulPipi1_decorated --data_dir ~/data/eggnog-mapper/data --cpu 8 &
 ```
 
-## blast reference insectiside resistant gene protein files against BRAKER4 proteins fasta file
+## BLAST reference insectiside resistant gene protein files against BRAKER4 proteins fasta file
 
 ```bash
 cd ~/data
@@ -185,6 +185,22 @@ makeblastdb -in braker_proteins.faa -dbtype prot -out braker_proteins_db
 mkdir output
 
 blastp -query reference_proteins.faa -db braker_proteins_db  -evalue 1e-10 -outfmt '6 qseqid sseqid pident length qlen slen evalue bitscore qstart qend sstart send' -out output/target_gene_hits.tsv
+```
+
+## BLAST reference rdl cds against consensus genome
+
+```bash
+cd ~/data
+mkdir blast_rdl_to_consensus_simple
+cd blast_rdl_to_consensus_simple
+
+cat ~/data/quinx_pallens_genes/quinx_pallens_cds/quinx_rdl_gaba_cds.fasta ~/data/quinx_pallens_genes/quinx_pallens_cds/pallens_rdl_gaba_cds.fasta > ~/data/blast_rdl_to_consensus_simple/reference_rdl_cds.fasta
+
+makeblastdb -in ~/data/consensus_simple.fasta -dbtype nucl -out consensus_simple_db
+
+mkdir output
+
+blastn -query reference_rdl_cds.fasta -db consensus_simple_db -evalue 1e-10 -outfmt '6 qseqid sseqid pident length qlen slen evalue bitscore qstart qend sstart send' -out output/rdl_gene_hits.tsv
 ```
 
 ## Transfer the breaker annotation to my consensus sequence with Liftoff 
