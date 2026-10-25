@@ -169,6 +169,14 @@ sed -i 's/all_orthologies, annot_orthologs, _confidence) = annotation/all_orthol
 nohup python emapper.py -i ~/data/BRAKER4/output/idCulPipi1/results/braker.aa --itype proteins -m no_search --annotate_hits_table idCulPipi1_eggnog.emapper.seed_orthologs --decorate_gff ~/data/BRAKER4/output/idCulPipi1/results/braker.gff3 -o idCulPipi1_decorated --data_dir ~/data/eggnog-mapper/data --cpu 8 &
 ```
 
+## Transfer the annotation to my consensus sequence with Liftoff 
+
+```bash
+cd ~/data
+mkdir liftoff_annotation
+liftoff -g eggnog-mapper/idCulPipi1_decorated.emapper.decorated.gff -o liftoff_annotation/consensus_simple_idCulPipi1_lifted_annotation.gff3 consensus_simple.fasta GCA_963924435.1_idCulPipi1.1_genomic.fna 
+```
+
 ## BLAST reference insectiside resistant gene protein files against BRAKER4 proteins fasta file
 
 ```bash
@@ -178,73 +186,13 @@ cd blast_ins_res_genes
 
 cat ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_ace1_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/quinx_rdl_gaba_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/pallens_sodium_channel_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/pallens_ace1_prot.fasta ~/data/quinx_pallens_genes/quinx_pallens_prot/pallens_rdl_gaba_prot.fasta > ~/data/blast_ins_res_genes/reference_proteins.faa
 
-gzip -dc ~/data/BRAKER4/output/idCulPipi1/results/braker.aa.gz > braker_proteins.faa
-
-makeblastdb -in braker_proteins.faa -dbtype prot -out braker_proteins_db
+makeblastdb -in ~/data/BRAKER4/output/idCulPipi1/results/braker.aa -dbtype prot -out braker_proteins_db
 
 mkdir output
 
 blastp -query reference_proteins.faa -db braker_proteins_db  -evalue 1e-10 -outfmt '6 qseqid sseqid pident length qlen slen evalue bitscore qstart qend sstart send' -out output/target_gene_hits.tsv
 ```
 
-## BLAST reference rdl cds against consensus genome
-
-```bash
-cd ~/data
-mkdir blast_rdl_to_consensus_simple
-cd blast_rdl_to_consensus_simple
-
-cat ~/data/quinx_pallens_genes/quinx_pallens_cds/quinx_rdl_gaba_cds.fasta ~/data/quinx_pallens_genes/quinx_pallens_cds/pallens_rdl_gaba_cds.fasta > ~/data/blast_rdl_to_consensus_simple/reference_rdl_cds.fasta
-
-makeblastdb -in ~/data/consensus_simple.fasta -dbtype nucl -out consensus_simple_db
-
-mkdir output
-
-blastn -query reference_rdl_cds.fasta -db consensus_simple_db -evalue 1e-10 -outfmt '6 qseqid sseqid pident length qlen slen evalue bitscore qstart qend sstart send' -out output/rdl_gene_hits.tsv
-
-# sort results in order of overlapping fragments to connect hits to get full rdl gene
-awk '$1 ~ /XM_038263969/ {print}' output/rdl_gene_hits.tsv | sort -k9,9n
-```
-
-## Extract the sequence for rdl from the BLAST results
-
-```bash
-samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172174780-172303616' > output/rdl_genomic_region.fasta
-```
-
-## Find where the rdl gene is in the consensus sequence with Exonerate
-
-```bash
-cd ~/data/blast_rdl_to_consensus_simple
-
-exonerate --model coding2genome --showalignment yes --showvulgar yes --showtargetgff yes --showsugar no reference_rdl_cds.fasta output/rdl_genomic_region.fasta > output/rdl_exonerate_results.txt
-```
-
-```bash
-{
-  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172174780-172174904'
-  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172226606-172226703'
-  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172233935-172234002'
-  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172255260-172255486'
-  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172257954-172258036'
-  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172278616-172278753'
-  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172295112-172295396'
-  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172298418-172298908'
-  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172303452-172303616'
-} | awk '
-BEGIN {print ">RDL_consensus_CDS"}
-!/^>/ {printf "%s", $0}
-END {printf "\n"}
-' > output/rdl_consensus_cds.fasta
-```
-
-## Transfer the breaker annotation to my consensus sequence with Liftoff 
-
-```bash
-cd ~/data
-mkdir liftoff_annotation
-liftoff -g eggnog-mapper/idCulPipi1_decorated.emapper.decorated.gff -o liftoff_annotation/consensus_simple_idCulPipi1_lifted_annotation.gff3 consensus_simple.fasta GCA_963924435.1_idCulPipi1.1_genomic.fna 
-```
 # Insecticide resistant gene extraction
 
 The gene sequences along with their CDS and protein sequences for *Culex pipiens pallens* and *Culex quinquefasciatus* were downloaded from NCBI using accession numbers found through literature search.
@@ -282,11 +230,79 @@ seqkit grep -p 'g22203.t1'  liftoff_annotation/consensus_simple_CDS_idCulPipi1.f
 seqkit grep -p 'g17576.t1' liftoff_annotation/consensus_simple_CDS_idCulPipi1.fasta >  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_ace1_cds.fasta
 ```
 
+## BLAST reference rdl cds against consensus genome
+
+```bash
+cd ~/data
+mkdir blast_rdl_to_consensus_simple
+cd blast_rdl_to_consensus_simple
+
+cat ~/data/quinx_pallens_genes/quinx_pallens_cds/quinx_rdl_gaba_cds.fasta ~/data/quinx_pallens_genes/quinx_pallens_cds/pallens_rdl_gaba_cds.fasta > ~/data/blast_rdl_to_consensus_simple/reference_rdl_cds.fasta
+
+makeblastdb -in ~/data/consensus_simple.fasta -dbtype nucl -out consensus_simple_db
+
+mkdir output
+
+blastn -query reference_rdl_cds.fasta -db consensus_simple_db -evalue 1e-10 -outfmt '6 qseqid sseqid pident length qlen slen evalue bitscore qstart qend sstart send' -out output/rdl_gene_hits.tsv
+
+# Sort RDL hits by reference CDS position to identify matching fragments
+awk '$1 ~ /XM_038263969/' output/rdl_gene_hits.tsv | sort -k9,9n
+```
+
+## Extract the sequence for rdl from the BLAST results
+
+```bash
+samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172174780-172303616' > output/rdl_genomic_region.fasta
+```
+
+## Find where the rdl gene is in the consensus sequence with Exonerate
+
+```bash
+cd ~/data/blast_rdl_to_consensus_simple
+
+exonerate --model coding2genome --showalignment yes --showvulgar yes --showtargetgff yes --showsugar no reference_rdl_cds.fasta output/rdl_genomic_region.fasta > output/rdl_exonerate_results.txt
+```
+
+```bash
+# Compare reference alignments and scores
+grep -E 'Query:|Raw score:|Query range:|Target range:' output/rdl_exonerate_results.txt
+
+# View positive-strand exon predictions
+grep -E $'\texon\t' output/rdl_exonerate_results.txt | awk -F '\t' '$7 == "+"'
+
+# Convert Exonerate exon coordinates to chromosome coordinates
+grep -E $'\texon\t' output/rdl_exonerate_results.txt | awk -F '\t' '$7 == "+" {print "OZ004313.1:" 172174780+$4-1 "-" 172174780+$5-1}' | sort -u -t: -k2,2n
+```
+
+```bash
+{
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172174780-172174904'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172226606-172226703'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172233935-172234002'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172255260-172255486'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172257954-172258036'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172278616-172278753'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172295112-172295396'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172298418-172298908'
+  samtools faidx ~/data/consensus_simple.fasta 'OZ004313.1:172303452-172303616'
+} | awk '
+BEGIN {print ">RDL_consensus_CDS"}
+!/^>/ {printf "%s", $0}
+END {printf "\n"}
+' > output/rdl_consensus_cds.fasta
+```
+
+```bash
+# Translate the cds to protein with seqkit
+seqkit translate output/rdl_consensus_cds.fasta > output/rdl_consensus_prot.fasta
+```
+
 ## Download reference sequences from NCBI with known mutation and make files for alignment
 
 ```bash
 mkdir ref_mutation
-mkdir mkdir ref_mutation/files_for_aligment
+mkdir ref_mutation/files_for_aligment
+cd ~/data
 
 cat ref_mutation/quinx_ace1_mut_ref.fasta pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_ace1_prot.fasta > ref_mutation/files_for_aligment/quinx_pipiens_ace1_alignment_input.fasta
 
@@ -295,6 +311,8 @@ cat ref_mutation/quinx_rdl_mut_ref.fasta pipiens_ins_res_genes_idCulPipi1_lifted
 cat ref_mutation/quinx_sodium_channel_mut_ref.fasta pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_sodium_channel_prot.fasta > ref_mutation/files_for_aligment/quinx_pipiens_sodium_channel_alignment_input.fasta
 
 cat ref_mutation/quinx_rdl_mut_nucleotide.fasta  pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_cds/pipiens_rdl_gaba_cds.fasta > ref_mutation/files_for_aligment/quinx_pipiens_rdl_gaba_nucleotide_alignment_input.fasta
+
+cat ref_mutation/quinx_rdl_mut_nucleotide.fasta  blast_rdl_to_consensus_simple/output/rdl_consensus_prot.fasta > ref_mutation/files_for_aligment/quinx_pipiens_consensus_rdl_gaba_nucleotide_alignment_input.fasta
 ```
 
 -
