@@ -322,11 +322,11 @@ cat ref_mutation/quinx_rdl_mut_nucleotide.fasta  blast_rdl_to_consensus_simple/o
 -
 -
 
+---
+
+---
 
 # Code Draft Section
----
-
----
 
 # Insecticide resistant gene extraction
 
