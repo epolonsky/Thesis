@@ -169,6 +169,18 @@ sed -i 's/all_orthologies, annot_orthologs, _confidence) = annotation/all_orthol
 nohup python emapper.py -i ~/data/BRAKER4/output/idCulPipi1/results/braker.aa --itype proteins -m no_search --annotate_hits_table idCulPipi1_eggnog.emapper.seed_orthologs --decorate_gff ~/data/BRAKER4/output/idCulPipi1/results/braker.gff3 -o idCulPipi1_decorated --data_dir ~/data/eggnog-mapper/data --cpu 8 &
 ```
 
+## Get annotation statistics with AGAT
+
+```bash
+conda activate agat_env
+
+# idCulPipi1 renefrence BRAKER4 annotation statistics
+agat_sp_statistics.pl --gff ~/data/BRAKER4/output/idCulPipi1/results/braker.gff3 --gs ~/data/consensus_simple.fasta -o ~/data/BRAKER4/output/idCulPipi1/results/annotation_statistics.txt
+
+# liftoff consensus annotation statistics
+agat_sp_statistics.pl --gff ~/data/liftoff_annotation/consensus_simple_idCulPipi1_lifted_annotation.gff3 --gs ~/data/consensus_simple.fasta -o ~/data/liftoff_annotation/annotation_statistics.txt
+```
+
 ## Transfer the annotation to my consensus sequence with Liftoff 
 
 ```bash
@@ -311,8 +323,6 @@ cat ref_mutation/quinx_rdl_mut_ref.fasta pipiens_ins_res_genes_idCulPipi1_lifted
 cat ref_mutation/quinx_sodium_channel_mut_ref.fasta pipiens_ins_res_genes_idCulPipi1_lifted/pipiens_prot/pipiens_sodium_channel_prot.fasta > ref_mutation/files_for_aligment/quinx_pipiens_sodium_channel_alignment_input.fasta
 
 cat ref_mutation/quinx_rdl_mut_nucleotide.fasta blast_rdl_to_consensus_simple/output/rdl_consensus_cds.fasta >  ref_mutation/files_for_aligment/quinx_pipiens_consensus_nucleotide_rdl_gaba_alignment_input.fasta
-
-
 ```
 
 -
@@ -328,184 +338,13 @@ cat ref_mutation/quinx_rdl_mut_nucleotide.fasta blast_rdl_to_consensus_simple/ou
 
 # Code Draft Section
 
-# Insecticide resistant gene extraction
-
-The CDS of the genes for *Culex pipiens pallens* and *Culex quinquefasciatus* were extracted from NCBI accession numbers found through literature search.
-
-For *Culex pipiens pipiens* the genes were found by using the gene id locus of the pallens gene and extracting it from the annotation.
-
-## Extract CDS and Protein sequences from the Liftoff annotation with gffread
-
-```bash
-gffread liftoff_simple_pallens/consensus_simple_lifted_annotation.gff3 -g consensus_simple.fasta -y liftoff_simple_pallens/consensus_simple_proteins.faa -x liftoff_simple_pallens/consensus_simple_CDS.fasta
-```
-
-## Identify and extract genes of interest with Samtools
-
-Three insecticide resistance-associated genes were selected for comparison.
-
-For Culex pipiens pipiens, the corresponding genes were identified using the gene locus IDs associated with the Culex pipiens pallens annotation transferred by Liftoff.
-
-The following gene loci were extracted:
-
-Gene	Gene locus
-Ace-1	LOC120414010
-Voltage-gated sodium channel	LOC120419138
-GABA receptor	LOC120412863
-
-## Extract the CDS sequences for each gene with seqkit
-
-seqkit grep was used to select the specific transcript accession for each insecticide resistance-associated gene.
-
-```bash
-mkdir pipiens_ins_res_genes_pallens_lifted/pipiens_cds
-
-seqkit grep -p 'rna-XM_052710737.1' liftoff_simple_pallens/consensus_simple_CDS.fasta > pipiens_ins_res_genes_pallens_lifted/pipiens_cds/pipiens_ace1_cds.fasta
-
-seqkit grep -p 'rna-XM_052707395.1' liftoff_simple_pallens/consensus_simple_CDS.fasta > pipiens_ins_res_genes_pallens_lifted/pipiens_cds/pipiens_sodium_channel_cds.fasta
-
-seqkit grep -p 'rna-XM_039573482.2' liftoff_simple_pallens/consensus_simple_CDS.fasta > pipiens_ins_res_genes_pallens_lifted/pipiens_cds/pipiens_rdl_gaba_cds.fasta
-```
-
-These files contain the selected Culex pipiens pipiens CDS sequences for the three genes used in downstream comparisons.
-
-## Create pairwise multi-FASTA files for the gene DNA sequences
-
-To compare the insecticide resistance-associated genes between species, the Culex pipiens pipiens CDS sequences were combined with the corresponding CDS sequences from Culex pipiens pallens and Culex quinquefasciatus.
-
-Each resulting FASTA file contains two sequences for the same gene, allowing direct pairwise sequence comparison.
-
-The following comparisons were generated:
-
-- C. p. pallens vs. C. p. pipiens
-- C. quinquefasciatus vs. C. p. pipiens
-
-```bash
-cd ~/data
-
-mkdir ins_res_gene_multi_fasta_files
-
-# C. p. pallens vs. C. p. pipiens
-cat quinx_pallens_genes/quinx_pallens_cds/pallens_ace1_cds.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_cds/pipiens_ace1_cds.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_ace1.fasta
-
-cat quinx_pallens_genes/quinx_pallens_cds/pallens_rdl_gaba_cds.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_cds/pipiens_rdl_gaba_cds.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_rdl_gaba.fasta
-
-cat quinx_pallens_genes/quinx_pallens_cds/pallens_sodium_channel_cds.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_cds/pipiens_sodium_channel_cds.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_sodium_channel.fasta
-
-# C. quinquefasciatus vs. C. p. pipiens
-cat quinx_pallens_genes/quinx_pallens_cds/quinx_ace1_cds.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_cds/pipiens_ace1_cds.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_ace1.fasta
-
-cat quinx_pallens_genes/quinx_pallens_cds/quinx_rdl_gaba_cds.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_cds/pipiens_rdl_gaba_cds.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_rdl_gaba.fasta
-
-cat quinx_pallens_genes/quinx_pallens_cds/quinx_sodium_channel_cds.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_cds/pipiens_sodium_channel_cds.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_sodium_channel.fasta
-```
-
-## Extract the protein sequences for each gene with seqkit
-
-```bash
-mkdir pipiens_ins_res_genes_pallens_lifted/pipiens_prot
-
-seqkit grep -p 'rna-XM_052710737.1' liftoff_simple_pallens/consensus_simple_proteins.faa > ls pipiens_ins_res_genes_pallens_lifted/pipiens_prot/pipiens_ace1_prot.fasta
-
-seqkit grep -p 'rna-XM_052707395.1' liftoff_simple_pallens/consensus_simple_proteins.faa > ls pipiens_ins_res_genes_pallens_lifted/pipiens_prot/pipiens_sodium_channel_prot.fasta
-
-seqkit grep -p 'rna-XM_039573482.2' liftoff_simple_pallens/consensus_simple_proteins.faa > ls pipiens_ins_res_genes_pallens_lifted/pipiens_prot/pipiens_rdl_gaba_prot.fasta
-```
-
-## Create pairwise multi-FASTA files for the protein sequences
-
-```bash
-cd ~/data
-
-# C. p. pallens vs. C. p. pipiens
-cat quinx_pallens_genes/quinx_pallens_prot/pallens_ace1_prot.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_prot/pipiens_ace1_prot.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_ace1_prot.fasta
-
-cat quinx_pallens_genes/quinx_pallens_prot/pallens_rdl_gaba_prot.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_prot/pipiens_rdl_gaba_prot.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_rdl_gaba_prot.fasta
-
-cat quinx_pallens_genes/quinx_pallens_prot/pallens_sodium_channel_prot.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_prot/pipiens_sodium_channel_prot.fasta > ins_res_gene_multi_fasta_files/pallens_vs_pipiens_sodium_channel_prot.fasta
-
-# C. quinquefasciatus vs. C. p. pipiens
-cat quinx_pallens_genes/quinx_pallens_prot/quinx_ace1_prot.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_prot/pipiens_ace1_prot.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_ace1_prot.fasta
-
-cat quinx_pallens_genes/quinx_pallens_prot/quinx_rdl_gaba_prot.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_prot/pipiens_rdl_gaba_prot.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_rdl_gaba_prot.fasta
-
-cat quinx_pallens_genes/quinx_pallens_prot/quinx_sodium_channel_prot.fasta pipiens_ins_res_genes_pallens_lifted/pipiens_prot/pipiens_sodium_channel_prot.fasta > ins_res_gene_multi_fasta_files/quinx_vs_pipiens_sodium_channel_prot.fasta
-```
-
-# Annotation statistics
+## Annotation statistics
 
 ## Generate annotation stats with AGAT
 
 ```bash
 agat_sp_statistics.pl --gff consensus_simple_lifted_annotation.gff3 -o liftoff_simple/liftoff_simple_annotation_gff_statistics.txt
 ```
-
-The AGAT output file contains statistics for each annotation feature type (mRNA, lncRNA, rRNA, tRNA, snRNA, snoRNA, and transcript). For protein-coding gene annotation statistics, values were taken from the following section:
-
-------------------------------------- mrna ---------------------------
-mrna have isoforms! Here are the statistics without isoforms shortest isoforms excluded)
-
-This section was used because it reports one representative transcript per gene.
-
-The following annotation statistics were obtained from the AGAT output:
-
-| Statistic | AGAT output field |
-|-----------|-------------------|
-| Number of protein-coding genes | `Number of gene` |
-| Number of exons per gene | `mean exons per mrna` |
-| Mean gene length (bp) | `mean gene length (bp)` |
-| Mean exon length (bp) | `mean exon length (bp)` |
-| Number of CDSs per gene | `mean cdss per mrna` |
-| Mean CDS length (bp) | `mean cds length (bp)` |
-| Number of introns per gene | `mean introns in cdss per mrna` |
-| Mean intron length (bp) | `mean intron in cds length (bp)` |
-| Total gene length (bp) | `Total gene length (bp)` |
-| Total exon length (bp) | `Total exon length (bp)` |
-| Total CDS length (bp) | `Total cds length (bp)` |
-| Total intron length (bp) | `Total intron length per cds (bp)` |
-
-
-## Calculate the number of predicted protein sequences
-
-```bash
-grep -c "^>" liftoff_simple/consensus_simple_CDS.fasta
-```
-
-## Calculate the mean protein length (aa)
-
-```bash
-seqkit fx2tab -nl consensus_simple_proteins.fasta | \
-awk '{sum+=length($2); n++} END {print sum/n}'
-```
-
-## Calculate the genome assembly size
-
-```bash
-seqkit stats simple_consensus.fasta
-```
-
-The sum_len value was used as the total genome size.
-
-## Genome, exon, CDS, and intron rations
-
-Feature density ratios were calculated as:
-
-```bash
-feature length / genome assembly size × 100
-```
-
-using the following AGAT values:
-
-Gene ratio:
-Total gene length (Total gene length (bp)) / genome size
-Exon ratio:
-Total exon length (Total exon length (bp)) / genome size
-CDS ratio:
-Total CDS length (Total cds length (bp)) / genome size
-Intron ratio:
-Total intron length (Total intron length per cds (bp)) / genome size
-
----
 
 # Genome Survey Analysis
 
