@@ -63,8 +63,9 @@ The workflow used Conda-managed environments for software installation and depen
 | RepeatMasker      | 4.2.3       |
 | BRAKER4 pipeline  | 0.5.0-beta  |
 | AUGUSTUS          | 3.5.0       |
-| Liftoff           | 1.5.2       |
 | eggNOG-mapper     | 2.1.13      |
+| Liftoff           | 1.5.2       |
+| AGAT              | 1.7.0       |
 
 Additional Pipeline Dependencies
 
@@ -105,5 +106,6 @@ Separate Conda environments were used to reduce dependency conflicts between sof
 | `repeatmask_env` | Repeat masking                           |
 | `braker4_env`    | BRAKER4 gene prediction                  |
 | `eggnog_env`     | Functional annotation                    |
+| `agat_env        | Calculate annotation statistics with AGAT |
 
 ---
