@@ -177,8 +177,12 @@ conda activate agat_env
 # idCulPipi1 renefrence BRAKER4 annotation statistics
 agat_sp_statistics.pl --gff ~/data/BRAKER4/output/idCulPipi1/results/braker.gff3 --gs ~/data/consensus_simple.fasta -o ~/data/BRAKER4/output/idCulPipi1/results/annotation_statistics.txt
 
+seqkit stats ~/data/BRAKER4/output/idCulPipi1/results/braker.aa
+
 # liftoff consensus annotation statistics
 agat_sp_statistics.pl --gff ~/data/liftoff_annotation/consensus_simple_idCulPipi1_lifted_annotation.gff3 --gs ~/data/consensus_simple.fasta -o ~/data/liftoff_annotation/annotation_statistics.txt
+
+seqkit stats ~/data/liftoff_annotation/consensus_simple_proteins_idCulPipi1.faa
 ```
 
 ## Transfer the annotation to my consensus sequence with Liftoff 
