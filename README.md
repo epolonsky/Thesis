@@ -106,6 +106,6 @@ Separate Conda environments were used to reduce dependency conflicts between sof
 | `repeatmask_env` | Repeat masking                           |
 | `braker4_env`    | BRAKER4 gene prediction                  |
 | `eggnog_env`     | Functional annotation                    |
-| `agat_env        | Calculate annotation statistics with AGAT |
+| `agat_env`       | Calculate annotation statistics with AGAT |
 
 ---
